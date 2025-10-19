@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gestão — PWA Modern</title>
+
+  <!-- Fonte moderna -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Login screen (shown before entering the app) -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-card">
+      <h2>Entrar</h2>
+      <form id="login-form">
+        <label for="login-username">Utilizador</label>
+        <input id="login-username" name="username" type="text" autocomplete="username" required />
+        <label for="login-password">Palavra-passe</label>
+        <input id="login-password" name="password" type="password" autocomplete="current-password" required />
+        <div class="login-actions">
+          <button type="submit" class="btn-accent">Entrar</button>
+        </div>
+        <div id="login-error" class="login-error" aria-live="polite"></div>
+      </form>
+      <small>Demo: admin / admin | Ou utilize email/password para login real</small>
+    </div>
+  </div>
+  <header class="topbar">
+    <div class="top-left">
+      <div class="file-buttons topbar-buttons">
+        <button class="file-btn" data-name="POS" data-icon="💳"><span class="icon">💳</span><span class="label">POS</span></button>
+        <button class="file-btn" data-name="Clientes" data-icon="👥"><span class="icon">👥</span><span class="label">Clientes</span></button>
+  <button class="file-btn" data-name="Vendas" data-icon="🧾"><span class="icon">🧾</span><span class="label">Vendas</span></button>
+  <button class="file-btn" data-name="Compras" data-icon="🛒"><span class="icon">🛒</span><span class="label">Compras</span></button>
+  <button class="file-btn" data-name="Guias" data-icon="📦"><span class="icon">📦</span><span class="label">Guias</span></button>
+        <button class="file-btn" data-name="Orçamentos" data-icon="📊"><span class="icon">📊</span><span class="label">Orçamentos</span></button>
+        <button class="file-btn" data-name="Fornecedores" data-icon="🏷️"><span class="icon">🏷️</span><span class="label">Fornecedores</span></button>
+        <button class="file-btn" data-name="Artigos" data-icon="📦"><span class="icon">📦</span><span class="label">Artigos</span></button>
+      </div>
+    </div>
+    <div class="top-right">
+  <button id="menu-config" class="icon-btn" title="Definições">⚙️</button>
+  <button class="icon-btn" title="Notificações">🔔</button>
+  <button id="menu-profile" class="icon-btn" title="Perfil">👤</button>
+    </div>
+  </header>
+
+  <main class="app-frame">
+    <aside class="left-column" id="left-column">
+      <div class="left-header">
+        <h4>Ferramentas</h4>
+      </div>
+      <ul id="tools-list" class="tools-list"></ul>
+      <div class="left-footer">
+        <div class="left-progress-container">
+          <div class="left-progress-info">
+            <small>Sistema • Carregado</small>
+            <span id="left-progress-text">100%</span>
+          </div>
+          <div class="left-progress">
+            <div class="left-progress-fill" id="left-progress-fill"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <section class="center-column">
+      <!-- Right column moved here and converted to a div (replaces previous #workspace) -->
+      <div class="right-column" id="right-column-as-div">
+        <div class="tabs">
+          <!-- add Dashboard tab as default -->
+          <button class="tab active" data-target="panel-dashboard" data-name="Dashboard" data-icon="📊"><span class="icon">📊</span><span class="label">Dashboard</span></button>
+          <!-- tabs recreated from file-buttons (excluding POS) -->
+          <button class="tab" data-target="table-clientes" data-name="Clientes" data-icon="👥"><span class="icon">👥</span><span class="label">Clientes</span></button>
+          <button class="tab" data-target="table-vendas" data-name="Vendas" data-icon="🧾"><span class="icon">🧾</span><span class="label">Vendas</span></button>
+          <button class="tab" data-target="table-compras" data-name="Compras" data-icon="🛒"><span class="icon">🛒</span><span class="label">Compras</span></button>
+          <button class="tab" data-target="table-guias" data-name="Guias" data-icon="📦"><span class="icon">📦</span><span class="label">Guias</span></button>
+          <button class="tab" data-target="table-orcamentos" data-name="Orçamentos" data-icon="📊"><span class="icon">📊</span><span class="label">Orçamentos</span></button>
+          <button class="tab" data-target="table-fornecedores" data-name="Fornecedores" data-icon="🏷️"><span class="icon">🏷️</span><span class="label">Fornecedores</span></button>
+          <button class="tab" data-target="table-artigos" data-name="Artigos" data-icon="📦"><span class="icon">📦</span><span class="label">Artigos</span></button>
+        </div>
+        <div id="tables-area" class="tables-area">
+          <div class="tables-toolbar">
+            <div class="tables-filter">
+              <select id="tables-filter-select">
+                <option value="any">Qualquer</option>
+                <option value="id">ID / SKU</option>
+                <option value="cliente">Cliente / Fornecedor</option>
+                <option value="data">Data</option>
+              </select>
+              <input id="tables-search" type="search" placeholder="Pesquisar..." />
+            </div>
+          </div>
+
+          <div id="table-clientes" class="data-panel">
+            <table>
+              <thead><tr><th>ID</th><th>Nome</th><th>Contacto</th><th>Email</th></tr></thead>
+              <tbody>
+                <tr><td>1001</td><td>João Silva</td><td>912345678</td><td>joao@example.com</td></tr>
+                <tr><td>1002</td><td>Maria Costa</td><td>911234567</td><td>maria@example.com</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Dashboard panel -->
+          <div id="panel-dashboard" class="data-panel">
+            <div class="dashboard-hero">
+              <h1>Bem-vindo de volta, João!</h1>
+              <p>Aqui está um resumo das suas atividades recentes</p>
+            </div>
+            <div class="dashboard-cards">
+              <div class="card metric">
+                <div class="card-icon">🧾</div>
+                <div class="card-body">
+                  <div class="metric-value">24</div>
+                  <div class="metric-label">Faturas este mês</div>
+                </div>
+              </div>
+              <div class="card metric">
+                <div class="card-icon">🛒</div>
+                <div class="card-body">
+                  <div class="metric-value">18</div>
+                  <div class="metric-label">Compras realizadas</div>
+                </div>
+              </div>
+              <div class="card metric">
+                <div class="card-icon">📦</div>
+                <div class="card-body">
+                  <div class="metric-value">156</div>
+                  <div class="metric-label">Artigos em stock</div>
+                </div>
+              </div>
+              <div class="card metric">
+                <div class="card-icon">💶</div>
+                <div class="card-body">
+                  <div class="metric-value">12.540€</div>
+                  <div class="metric-label">Receita mensal</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="table-vendas" class="data-panel hidden">
+            <table>
+              <thead><tr><th>Nº</th><th>Cliente</th><th>Data</th><th>Total</th></tr></thead>
+              <tbody>
+                <tr><td>3001</td><td>Loja X</td><td>2025-10-02</td><td>512,00</td></tr>
+                <tr><td>3002</td><td>Cliente Y</td><td>2025-10-08</td><td>120,00</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="table-compras" class="data-panel hidden">
+            <table>
+              <thead><tr><th>ID</th><th>Fornecedor</th><th>Data</th><th>Total</th></tr></thead>
+              <tbody>
+                <tr><td>2001</td><td>João & Filhos</td><td>2025-10-07</td><td>291,07</td></tr>
+                <tr><td>1999</td><td>DPD Portugal</td><td>2025-10-03</td><td>56,83</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="table-guias" class="data-panel hidden">
+            <table>
+              <thead><tr><th>ID</th><th>Destino</th><th>Data</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>G100</td><td>Armazém A</td><td>2025-09-30</td><td>Enviado</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="table-orcamentos" class="data-panel hidden">
+            <table>
+              <thead><tr><th>ID</th><th>Cliente</th><th>Data</th><th>Total</th></tr></thead>
+              <tbody>
+                <tr><td>Q500</td><td>Cliente Z</td><td>2025-10-01</td><td>1200,00</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="table-fornecedores" class="data-panel hidden">
+            <table>
+              <thead><tr><th>ID</th><th>Nome</th><th>Contacto</th></tr></thead>
+              <tbody>
+                <tr><td>F200</td><td>DPD Portugal</td><td>213000000</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="table-artigos" class="data-panel hidden">
+            <table>
+              <thead><tr><th>SKU</th><th>Descrição</th><th>Stock</th><th>Preço</th></tr></thead>
+              <tbody>
+                <tr><td>A100</td><td>Parafuso 4mm</td><td>124</td><td>0,05</td></tr>
+                <tr><td>A200</td><td>Lubrificante</td><td>42</td><td>2,50</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bottom-bar">
+    <div class="taskbar-scroll-indicator left" id="taskbar-left-indicator"></div>
+    <div class="taskbar-scroll-indicator right" id="taskbar-right-indicator"></div>
+    <div id="taskbar" class="taskbar" aria-live="polite"></div>
+  </footer>
+
+  <!-- Global window container: holds floating windows over the entire viewport -->
+  <div id="window-container" class="window-container" aria-hidden="false"></div>
+
+  <!-- Modal Definições / Edit Tools -->
+  <div id="settings-modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <header class="modal-header">
+        <h3>Definições</h3>
+        <button id="close-settings" class="icon-btn">✕</button>
+      </header>
+
+        
+      <div class="modal-body">
+        <div class="settings-tools">
+         <label>Ferramentas (vírgula separado)</label>
+         <input id="tools-input" type="text" placeholder="Facturação,Compras,Clientes" />
+        </div>
+        <label>Ferramentas (vírgula separador)</label>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.PUBLIC_API_URL = 'http://localhost:3000/api';
+  </script>
+  <script>
+    // lightweight api client for PWA context
+    (function(){
+      const API_URL = window.PUBLIC_API_URL;
+      class Api {
+        constructor(){ try{ this.t = localStorage.getItem('access_token'); this.r = localStorage.getItem('refresh_token'); }catch(_){}}
+        async req(ep, opts={}){ const h=Object.assign({'Content-Type':'application/json'},opts.headers||{}); if(this.t) h.Authorization=`Bearer ${this.t}`; const r=await fetch(API_URL+ep, Object.assign({},opts,{headers:h})); const d=await r.json().catch(()=>({})); if(!r.ok) throw new Error(d.message||d.error||('HTTP '+r.status)); return d; }
+        async login(email, password){ const d=await this.req('/auth/login',{method:'POST',body:JSON.stringify({email,password})}); if(d.session){ this.t=d.session.access_token; this.r=d.session.refresh_token; try{localStorage.setItem('access_token',this.t);localStorage.setItem('refresh_token',this.r);}catch(_){}} return d; }
+        async dashboard(){ return this.req('/employee/dashboard'); }
+      }
+      window.pwaApi = new Api();
+    })();
+  </script>
+  <!-- POS Overlay -->
+  <div id="pos-overlay" class="pos-overlay hidden">
+    <div class="pos-header">
+      <h1>🛒 PlastiBorracha - Ponto de Venda</h1>
+      <div class="pos-header-buttons">
+        <button class="pos-settings-btn" id="pos-settings-btn">⚙️</button>
+        <button class="pos-close-btn" id="pos-close-btn">✕</button>
+      </div>
+    </div>
+    
+    <!-- Mobile Cart Toggle -->
+    <button class="pos-cart-toggle" id="pos-cart-toggle" style="display: none;">🛒</button>
+    
+    <div class="pos-interface">
+      <div class="pos-main-area">
+        <!-- POS Search Bar -->
+        <div class="pos-search">
+          <input 
+            type="text" 
+            class="pos-search-input" 
+            placeholder="🔍 Pesquisar produtos por nome, código ou código de barras..."
+            id="pos-product-search"
+          >
+        </div>
+
+        <!-- Category Filters -->
+        <div class="pos-categories">
+          <button class="pos-category-btn active" data-category="all">Todos</button>
+          <button class="pos-category-btn" data-category="automovel">Automóvel</button>
+          <button class="pos-category-btn" data-category="industria">Indústria</button>
+          <button class="pos-category-btn" data-category="vedantes">Vedantes</button>
+          <button class="pos-category-btn" data-category="perfis">Perfis</button>
+          <button class="pos-category-btn" data-category="apoios">Apoios</button>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="pos-products-grid" id="pos-products-grid">
+          <!-- Products will be loaded here -->
+        </div>
+      </div>
+
+      <!-- POS Cart -->
+      <div class="pos-cart">
+        <div class="pos-cart-header">
+          <h3>🛒 Carrinho</h3>
+          <span id="pos-cart-count">0 itens</span>
+        </div>
+
+        <div class="pos-cart-items" id="pos-cart-items">
+          <div class="pos-empty-cart">
+            <p>Carrinho vazio</p>
+            <small>Adicione produtos para começar</small>
+          </div>
+        </div>
+
+        <div class="pos-cart-summary" id="pos-cart-summary" style="display: none;">
+          <div class="pos-summary-line">
+            <span>Subtotal:</span>
+            <span id="pos-subtotal">€0,00</span>
+          </div>
+          <div class="pos-summary-line">
+            <span>IVA (23%):</span>
+            <span id="pos-tax">€0,00</span>
+          </div>
+          <div class="pos-summary-total">
+            <span>Total:</span>
+            <span id="pos-total">€0,00</span>
+          </div>
+        </div>
+
+        <div class="pos-checkout">
+          <select class="pos-customer-select" id="pos-customer-select">
+            <option value="">Cliente (Opcional)</option>
+            <option value="1">João Silva</option>
+            <option value="2">Maria Costa</option>
+            <option value="3">António Pereira</option>
+          </select>
+
+          <div class="pos-payment-methods">
+            <button class="pos-payment-btn active" data-method="cash">💵 Dinheiro</button>
+            <button class="pos-payment-btn" data-method="card">💳 Cartão</button>
+            <button class="pos-payment-btn" data-method="mb">📱 MB WAY</button>
+            <button class="pos-payment-btn" data-method="transfer">🏦 Transfer</button>
+          </div>
+
+          <button class="pos-checkout-btn" id="pos-checkout-btn" disabled>
+            Finalizar Venda - €0,00
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POS Settings Modal -->
+  <div id="pos-settings-modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <header class="modal-header">
+        <h3>⚙️ Definições POS</h3>
+        <button id="close-pos-settings" class="icon-btn">✕</button>
+      </header>
+      
+      <div class="modal-body">
+        <div class="settings-section">
+          <h4>🏪 Loja</h4>
+          <label>Nome da Loja</label>
+          <input id="pos-store-name" type="text" placeholder="PlastiBorracha" value="PlastiBorracha" />
+          
+          <label>Morada</label>
+          <textarea id="pos-store-address" placeholder="Rua da Loja, 123&#10;1234-567 Cidade"></textarea>
+        </div>
+        
+        <div class="settings-section">
+          <h4>💰 Preços</h4>
+          <label>
+            <input id="pos-show-tax" type="checkbox" checked /> 
+            Mostrar IVA separadamente
+          </label>
+          
+          <label>Taxa IVA (%)</label>
+          <input id="pos-tax-rate" type="number" value="23" min="0" max="100" step="0.1" />
+        </div>
+        
+        <div class="settings-section">
+          <h4>🧾 Recibos</h4>
+          <label>
+            <input id="pos-auto-print" type="checkbox" /> 
+            Imprimir recibo automaticamente
+          </label>
+          
+          <label>
+            <input id="pos-show-barcode" type="checkbox" checked /> 
+            Mostrar código de barras nos produtos
+          </label>
+        </div>
+        
+        <div class="settings-section">
+          <h4>🔧 Sistema</h4>
+          <label>
+            <input id="pos-sound-enabled" type="checkbox" checked /> 
+            Sons do sistema ativados
+          </label>
+          
+          <label>Tema</label>
+          <select id="pos-theme">
+            <option value="light">Claro</option>
+            <option value="dark">Escuro</option>
+            <option value="auto">Automático</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button id="pos-reset-settings" class="btn-secondary">Repor Padrões</button>
+        <button id="pos-save-settings" class="btn-primary">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js?v=20251017" defer></script>
+</body>
+</html>
