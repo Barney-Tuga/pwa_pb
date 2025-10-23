@@ -7,6 +7,9 @@
 
   <!-- Fonte moderna -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏭</text></svg>">
 
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="styles.css" />
@@ -19,14 +22,13 @@
       <form id="login-form">
         <label for="login-username">Utilizador</label>
         <input id="login-username" name="username" type="text" autocomplete="username" required />
-        <label for="login-password">Palavra-passe</label>
+        <label for="login-password"><br>Palavra-passe</label>
         <input id="login-password" name="password" type="password" autocomplete="current-password" required />
         <div class="login-actions">
           <button type="submit" class="btn-accent">Entrar</button>
         </div>
         <div id="login-error" class="login-error" aria-live="polite"></div>
       </form>
-      <small>Demo: admin / admin | Ou utilize email/password para login real</small>
     </div>
   </div>
   <header class="topbar">
@@ -191,7 +193,7 @@
             </table>
           </div>
 
-          <div id="table-artigos" class="data-panel hidden">
+                    <div id="table-artigos" class="data-panel hidden">
             <table>
               <thead><tr><th>SKU</th><th>Descrição</th><th>Stock</th><th>Preço</th></tr></thead>
               <tbody>
@@ -262,82 +264,86 @@
     <!-- Mobile Cart Toggle -->
     <button class="pos-cart-toggle" id="pos-cart-toggle" style="display: none;">🛒</button>
     
-    <div class="pos-interface">
-      <div class="pos-main-area">
-        <!-- POS Search Bar -->
-        <div class="pos-search">
-          <input 
-            type="text" 
-            class="pos-search-input" 
-            placeholder="🔍 Pesquisar produtos por nome, código ou código de barras..."
-            id="pos-product-search"
-          >
+    <div class="pos-body">
+      <div class="pos-left">
+        <!-- client selector area (below header, left of right bar) -->
+        <div class="pos-client-panel">
+          <button id="pos-choose-client" class="btn">Escolher Cliente</button>
+          <div class="pos-client-info">
+            <div class="pos-client-name">Consumidor final</div>
+            <div class="pos-client-nif">NIF: 999999990</div>
+          </div>
         </div>
 
-        <!-- Category Filters -->
-        <div class="pos-categories">
-          <button class="pos-category-btn active" data-category="all">Todos</button>
-          <button class="pos-category-btn" data-category="automovel">Automóvel</button>
-          <button class="pos-category-btn" data-category="industria">Indústria</button>
-          <button class="pos-category-btn" data-category="vedantes">Vedantes</button>
-          <button class="pos-category-btn" data-category="perfis">Perfis</button>
-          <button class="pos-category-btn" data-category="apoios">Apoios</button>
-        </div>
-
-        <!-- Products Grid -->
-        <div class="pos-products-grid" id="pos-products-grid">
-          <!-- Products will be loaded here -->
+        <!-- big invoice/articles area -->
+        <div class="invoice-list" id="invoice-list">
+          <!-- invoice rows will be injected here -->
+          <div class="invoice-empty">Nenhum artigo adicionado</div>
         </div>
       </div>
 
-      <!-- POS Cart -->
-      <div class="pos-cart">
-        <div class="pos-cart-header">
-          <h3>🛒 Carrinho</h3>
-          <span id="pos-cart-count">0 itens</span>
+      <aside class="pos-right">
+        <div class="pos-total-card">
+          <div class="pos-total-amount" id="pos-total-amount">€0,00</div>
+          <div class="pos-total-label">Total da Fatura</div>
         </div>
 
-        <div class="pos-cart-items" id="pos-cart-items">
-          <div class="pos-empty-cart">
-            <p>Carrinho vazio</p>
-            <small>Adicione produtos para começar</small>
-          </div>
-        </div>
+        <button id="pos-pay-btn" class="pos-pay-btn">Pagar (F8)</button>
 
-        <div class="pos-cart-summary" id="pos-cart-summary" style="display: none;">
-          <div class="pos-summary-line">
-            <span>Subtotal:</span>
-            <span id="pos-subtotal">€0,00</span>
-          </div>
-          <div class="pos-summary-line">
-            <span>IVA (23%):</span>
-            <span id="pos-tax">€0,00</span>
-          </div>
-          <div class="pos-summary-total">
-            <span>Total:</span>
-            <span id="pos-total">€0,00</span>
-          </div>
-        </div>
-
-        <div class="pos-checkout">
-          <select class="pos-customer-select" id="pos-customer-select">
-            <option value="">Cliente (Opcional)</option>
-            <option value="1">João Silva</option>
-            <option value="2">Maria Costa</option>
-            <option value="3">António Pereira</option>
+        <div class="pos-vendedor">
+          <label class="pos-small-label">Vendedor</label>
+          <select id="pos-vendedor-select">
+            <option>Vendedor (F11)</option>
+            <option>João</option>
+            <option>Maria</option>
           </select>
-
-          <div class="pos-payment-methods">
-            <button class="pos-payment-btn active" data-method="cash">💵 Dinheiro</button>
-            <button class="pos-payment-btn" data-method="card">💳 Cartão</button>
-            <button class="pos-payment-btn" data-method="mb">📱 MB WAY</button>
-            <button class="pos-payment-btn" data-method="transfer">🏦 Transfer</button>
-          </div>
-
-          <button class="pos-checkout-btn" id="pos-checkout-btn" disabled>
-            Finalizar Venda - €0,00
-          </button>
         </div>
+
+        <div class="pos-right-actions">
+          <button class="pos-action-btn">Visualizar (F12)</button>
+          <button class="pos-action-btn">Vales Desconto</button>
+          <button class="pos-action-btn">Intr. Quantidade</button>
+          <button class="pos-action-btn">Novo Documento</button>
+          <button class="pos-action-btn">Artigos (F2)</button>
+          <button class="pos-action-btn">Mais Opções</button>
+          <button class="pos-action-btn btn-danger">Sair</button>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Bottom entry area: choose which article to add -->
+    <div class="pos-entry-bar" id="pos-entry-bar">
+      <div class="pos-entry-top" style="display:flex;gap:10px;width:100%;align-items:center;">
+        <div class="pos-entry-left">
+          <label class="pos-small-label">Artigo</label>
+          <input id="pos-entry-sku" class="pos-entry-input" placeholder="Código / Barra" />
+        </div>
+
+        <div class="pos-entry-mid" style="flex:1;">
+          <label class="pos-small-label">Descrição</label>
+          <input id="pos-entry-desc" class="pos-entry-input" placeholder="Descrição do artigo" />
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center">
+          <div>
+            <label class="pos-small-label">Qtd</label>
+            <input id="pos-entry-qty" class="pos-entry-small" value="1" />
+          </div>
+          <div>
+            <label class="pos-small-label">Preço</label>
+            <input id="pos-entry-price" class="pos-entry-small" />
+          </div>
+          <div>
+            <label class="pos-small-label">Desconto</label>
+            <input id="pos-entry-discount" class="pos-entry-small" placeholder="%" />
+          </div>
+        </div>
+      </div>
+
+      <div class="pos-entry-actions" style="display:flex;gap:10px;margin-top:8px;">
+        <button id="pos-entry-add" class="pos-entry-add">Adicionar</button>
+        <button id="pos-entry-remove" class="btn btn-secondary">Remover</button>
+        <button id="pos-entry-edit" class="btn">Alterar</button>
       </div>
     </div>
   </div>
@@ -407,6 +413,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="" crossorigin="anonymous" defer></script>
   <script src="app.js?v=20251017" defer></script>
 </body>
 </html>
