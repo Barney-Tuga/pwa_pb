@@ -452,6 +452,117 @@ document.querySelectorAll('.file-btn').forEach(btn=>{
         return;
       }
       
+      // Special handling for Artigos - show custom design
+      if(name === 'Artigos'){
+        const artigosContent = `
+          <div style="height: 100%; display: flex; flex-direction: column;">
+            <div class="artigos-toolbar">
+              <button class="artigo-btn" title="Criar Novo Artigo">
+                <span class="icon">➕</span>
+                <span class="label">Criar</span>
+              </button>
+              <button class="artigo-btn" title="Procurar Artigo">
+                <span class="icon">🔍</span>
+                <span class="label">Procurar</span>
+              </button>
+              <button class="artigo-btn" title="Alterar Artigo">
+                <span class="icon">✏️</span>
+                <span class="label">Alterar</span>
+              </button>
+              <button class="artigo-btn" title="Eliminar Artigo">
+                <span class="icon">🗑️</span>
+                <span class="label">Eliminar</span>
+              </button>
+              <button class="artigo-btn" title="Imprimir Lista">
+                <span class="icon">🖨️</span>
+                <span class="label">Imprimir</span>
+              </button>
+              <button class="artigo-btn" title="Exportar/Importar Dados">
+                <span class="icon">📤</span>
+                <span class="label">Exportar/Importar</span>
+              </button>
+              <button class="artigo-btn" title="Atualizar Lista">
+                <span class="icon">🔄</span>
+                <span class="label">Atualizar</span>
+              </button>
+            </div>
+            <div class="artigo-info">
+              <div class="artigo-ref">
+                <label>CÓD. ARTIGO</label>
+                <input type="text" placeholder="Ex: A100" />
+              </div>
+              <div class="artigo-nome">
+                <label>NOME/DESCRIÇÃO</label>
+                <input type="text" placeholder="Descrição do artigo" />
+              </div>
+            </div>
+            <div class="artigos-menu-tabs">
+              <button class="artigo-menu-btn active" onclick="changeArtigoContent(this, 'dados')">
+                <span class="icon">📋</span>
+                <span class="label">Dados Artigo</span>
+              </button>
+              <button class="artigo-menu-btn" onclick="changeArtigoContent(this, 'clientes')">
+                <span class="icon">👥</span>
+                <span class="label">Clientes/Fornecedores</span>
+              </button>
+              <button class="artigo-menu-btn" onclick="changeArtigoContent(this, 'precos')">
+                <span class="icon">💰</span>
+                <span class="label">Preços</span>
+              </button>
+              <button class="artigo-menu-btn" onclick="changeArtigoContent(this, 'lotes')">
+                <span class="icon">📦</span>
+                <span class="label">Lotes</span>
+              </button>
+              <button class="artigo-menu-btn" onclick="changeArtigoContent(this, 'graficos')">
+                <span class="icon">📊</span>
+                <span class="label">Gráficos</span>
+              </button>
+              <button class="artigo-menu-btn" onclick="changeArtigoContent(this, 'historico')">
+                <span class="icon">📈</span>
+                <span class="label">Histórico</span>
+              </button>
+              <button class="artigo-menu-btn" onclick="changeArtigoContent(this, 'stock')">
+                <span class="icon">📋</span>
+                <span class="label">Stock</span>
+              </button>
+            </div>
+            <div class="artigo-content-area" style="flex: 1; background: #f8fafc; padding: 20px;">
+              <p style="color: #64748b; text-align: center; margin-top: 50px;">Selecione um menu acima para ver o conteúdo</p>
+            </div>
+          </div>
+        `;
+        
+        openWindow({
+          title: `${icon} ${name}`, 
+          content: artigosContent,
+          width: 800,
+          height: 600
+        });
+        // wire the procurar button inside the artigos window to open the Procura de Artigo window
+        try{
+          const lastId = 'win-' + winCounter; // openWindow increments winCounter
+          const winEl = windows[lastId];
+          if(winEl){
+            const procurarBtn = winEl.querySelector('.artigos-toolbar .artigo-btn[title="Procurar Artigo"]');
+            if(procurarBtn){
+              procurarBtn.addEventListener('click', () => { try{ openProcuraArtigoWindow(); }catch(e){ console.error(e); } });
+            }
+          }
+        }catch(_){ }
+        return;
+      }
+
+      // Special handling for Clientes - open client form window
+      if(name === 'Clientes'){
+        try{
+          openClientWindow();
+        }catch(e){
+          console.error('Erro ao abrir janela de Clientes', e);
+          openWindow({title: `${icon} ${name}`, content: '<p>Clientes (erro ao montar janela)</p>'});
+        }
+        return;
+      }
+      
       // abrir uma janela com o nome e o ícone do botão
       const content = `<p style="font-size:16px;padding:6px;">${name}</p>`;
       openWindow({title: `${icon} ${name}`, content});
@@ -517,6 +628,882 @@ function openWindow({title='Janela', content='', width=520, height=360, left=60,
 
   return id;
 }
+
+// Função global para trocar conteúdo dos artigos
+window.changeArtigoContent = function(btn, section) {
+  console.log('changeArtigoContent chamado:', section);
+  
+  const windowEl = btn.closest('.window');
+  const allBtns = windowEl.querySelectorAll('.artigo-menu-btn');
+  allBtns.forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  
+  const contentArea = windowEl.querySelector('.artigo-content-area');
+  
+  if (section === 'lotes') {
+    contentArea.innerHTML = `
+      <div id="lotes-container" style="display: flex; height: 100%; position: relative;">
+        <div id="left-panel" style="width: 60%; border: 1px solid #cbd5e1; background: white; margin-right: 5px;">
+          <div style="background: #f1f5f9; padding: 8px; border-bottom: 1px solid #cbd5e1; font-weight: 600; font-size: 12px;">
+            Histórico de Lotes
+          </div>
+          <div style="overflow-y: auto; max-height: 300px;">
+            <table id="lotes-table" style="width: 100%; font-size: 11px; border-collapse: collapse; table-layout: fixed;">
+              <thead>
+                <tr style="background: #f8fafc;">
+                  <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: left; width: 40px; position: relative; cursor: pointer;" onclick="sortTable(0)" data-sort="none">
+                    Status
+                    <div class="resize-handle" style="position: absolute; right: 0; top: 0; width: 5px; height: 100%; cursor: col-resize;"></div>
+                  </th>
+                  <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: left; width: 150px; position: relative; cursor: pointer;" onclick="sortTable(1)" data-sort="none">
+                    Lote
+                    <div class="resize-handle" style="position: absolute; right: 0; top: 0; width: 5px; height: 100%; cursor: col-resize;"></div>
+                  </th>
+                  <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: left; width: 80px; position: relative; cursor: pointer;" onclick="sortTable(2)" data-sort="none">
+                    Validade
+                    <div class="resize-handle" style="position: absolute; right: 0; top: 0; width: 5px; height: 100%; cursor: col-resize;"></div>
+                  </th>
+                  <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: left; width: 60px; position: relative; cursor: pointer;" onclick="sortTable(3)" data-sort="none">
+                    Quant.
+                    <div class="resize-handle" style="position: absolute; right: 0; top: 0; width: 5px; height: 100%; cursor: col-resize;"></div>
+                  </th>
+                  <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: left; width: 80px; position: relative; cursor: pointer;" onclick="sortTable(4)" data-sort="none">
+                    Criado em
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="lotes-tbody">
+                <tr style="cursor: pointer;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">🟢</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">ROLOS 400m</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">31-07-2026</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">5200</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">31-07-2020</td>
+                </tr>
+                <tr style="cursor: pointer;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">🟢</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">BRANCO - rolos 400m</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">13-11-2026</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">1500</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">13-11-2020</td>
+                </tr>
+                <tr style="cursor: pointer;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">🟡</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">RETALHO 1</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">31-07-2025</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">120</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">31-07-2020</td>
+                </tr>
+                <tr style="cursor: pointer;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">🟡</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">RETALHO 22.01</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">31-07-2024</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">0</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">20-06-2022</td>
+                </tr>
+                <tr style="cursor: pointer;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">🟢</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">ROLOS 300m</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">11-07-2025</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">0</td>
+                  <td style="padding: 4px; border: 1px solid #e2e8f0;">11-07-2023</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- Divisória redimensionável -->
+        <div id="vertical-resizer" style="width: 3px; background: #e2e8f0; cursor: col-resize; position: relative; z-index: 10; margin: 0 1px; transition: background-color 0.2s;"></div>
+        
+        <div id="right-panel" style="width: 40%; border: 1px solid #cbd5e1; background: white; margin-left: 5px;">
+          <div style="background: #f1f5f9; padding: 8px; border-bottom: 1px solid #cbd5e1; font-weight: 600; font-size: 12px;">
+            Entradas/saídas/produções do Lote
+          </div>
+          <div style="overflow-y: auto; max-height: 300px;">
+            <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
+              <thead>
+                <tr style="background: #f8fafc;">
+                  <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: left;">Lote</th>
+                  <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: left;">Qtd.</th>
+                  <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: left;">Cli/For.</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td style="padding: 4px; border: 1px solid #e2e8f0;">RETALHO 1</td><td style="padding: 4px; border: 1px solid #e2e8f0; color: red;">-100</td><td style="padding: 4px; border: 1px solid #e2e8f0;">CLIENTE</td></tr>
+                <tr><td style="padding: 4px; border: 1px solid #e2e8f0;">RETALHO 1</td><td style="padding: 4px; border: 1px solid #e2e8f0; color: red;">-5</td><td style="padding: 4px; border: 1px solid #e2e8f0;">CLIENTE</td></tr>
+                <tr><td style="padding: 4px; border: 1px solid #e2e8f0;">ROLOS 400m</td><td style="padding: 4px; border: 1px solid #e2e8f0; color: red;">-400</td><td style="padding: 4px; border: 1px solid #e2e8f0;">CLIENTE</td></tr>
+                <tr><td style="padding: 4px; border: 1px solid #e2e8f0;">RETALHO 1</td><td style="padding: 4px; border: 1px solid #e2e8f0; color: red;">-10</td><td style="padding: 4px; border: 1px solid #e2e8f0;">CLIENTE</td></tr>
+                <tr><td style="padding: 4px; border: 1px solid #e2e8f0;">RETALHO 1</td><td style="padding: 4px; border: 1px solid #e2e8f0; color: red;">-50</td><td style="padding: 4px; border: 1px solid #e2e8f0;">CLIENTE</td></tr>
+                <tr><td style="padding: 4px; border: 1px solid #e2e8f0;">ROLOS 400m</td><td style="padding: 4px; border: 1px solid #e2e8f0; color: green;">+3200</td><td style="padding: 4px; border: 1px solid #e2e8f0;">FORNECEDOR</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Adicionar funcionalidade de redimensionamento de colunas e painéis
+    setTimeout(() => {
+      setupColumnResize();
+      setupPanelResize();
+      // update status icons based on quantity
+      try{ if(typeof updateLotesIcons === 'function') updateLotesIcons(); }catch(_){ }
+    }, 100);
+  } else if (section === 'precos') {
+    contentArea.innerHTML = `
+      <div class="precos-container">
+        <div class="precos-left">
+          <div class="precos-grupo">
+            <label for="preco-fornecedor">Preço do Fornecedor</label>
+            <input type="number" id="preco-fornecedor" placeholder="0,00" step="0.01" min="0" />
+          </div>
+          
+          <div class="precos-grupo">
+            <label for="desconto">Desconto (%)</label>
+            <input type="number" id="desconto" placeholder="%" step="0.01" min="0" />
+          </div>
+          
+          <div class="precos-grupo">
+            <label for="transporte">Transporte</label>
+            <input type="number" id="transporte" placeholder="0,00" step="0.01" min="0" />
+          </div>
+          
+          <div class="precos-grupo">
+            <label for="preco-custo">Preço Custo</label>
+            <input type="number" id="preco-custo" placeholder="0,00" step="0.01" min="0" readonly />
+          </div>
+        </div>
+        
+        <div class="precos-right">
+          <div class="preco-venda-linha">
+            <label>Preço 1</label>
+            <input type="number" class="margem-input" placeholder="%" step="0.01" min="0" data-preco="1" />
+            <input type="number" class="preco-final-input" placeholder="0,00" step="0.01" min="0" readonly />
+          </div>
+          
+          <div class="preco-venda-linha">
+            <label>Preço 2</label>
+            <input type="number" class="margem-input" placeholder="%" step="0.01" min="0" data-preco="2" />
+            <input type="number" class="preco-final-input" placeholder="0,00" step="0.01" min="0" readonly />
+          </div>
+          
+          <div class="preco-venda-linha">
+            <label>Preço 3</label>
+            <input type="number" class="margem-input" placeholder="%" step="0.01" min="0" data-preco="3" />
+            <input type="number" class="preco-final-input" placeholder="0,00" step="0.01" min="0" readonly />
+          </div>
+          
+          <div class="preco-venda-linha">
+            <label>Preço 4</label>
+            <input type="number" class="margem-input" placeholder="%" step="0.01" min="0" data-preco="4" />
+            <input type="number" class="preco-final-input" placeholder="0,00" step="0.01" min="0" readonly />
+          </div>
+          
+          <div class="preco-venda-linha">
+            <label>Preço 5</label>
+            <input type="number" class="margem-input" placeholder="%" step="0.01" min="0" data-preco="5" />
+            <input type="number" class="preco-final-input" placeholder="0,00" step="0.01" min="0" readonly />
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Adicionar funcionalidade de cálculo de preços
+    setTimeout(() => {
+      setupPrecosCalculations();
+    }, 100);
+  } else if (section === 'graficos') {
+    // render the gráficos panel (chart + period selector)
+    // use a small timeout to ensure the active class and layout are settled
+    setTimeout(() => {
+      try { setupGraficosPanel(windowEl); } catch (e) { console.error('Erro ao montar graficos:', e); }
+    }, 50);
+  } else {
+    const sectionNames = {
+      'dados': 'Dados Artigo',
+      'clientes': 'Clientes/Fornecedores', 
+      'precos': 'Preços',
+      'graficos': 'Gráficos',
+      'historico': 'Histórico',
+      'stock': 'Stock'
+    };
+    // special case: clientes/fornecedores interactive sheet
+    if(section === 'clientes'){
+      contentArea.innerHTML = `
+        <div class="cf-sheet">
+          <div class="cf-buttons">
+            <button id="cf-clients" class="cf-btn active">Clientes</button>
+            <button id="cf-suppliers" class="cf-btn">Fornecedores</button>
+          </div>
+
+          <div class="cf-tables">
+            <div id="cf-clients-table" class="cf-table">
+              <table>
+                <thead><tr><th>Nome</th><th>ID Fatura</th><th>Qtd.</th><th>Preço</th><th>Data</th></tr></thead>
+                <tbody>
+                  <tr><td>João Silva</td><td>F-3001</td><td>3</td><td>120,00</td><td>2025-10-02</td></tr>
+                  <tr><td>Loja X</td><td>F-3010</td><td>12</td><td>512,00</td><td>2025-10-09</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div id="cf-suppliers-table" class="cf-table hidden">
+              <table>
+                <thead><tr><th>Fornecedor</th><th>ID Fatura</th><th>Qtd.</th><th>Preço</th><th>Data</th></tr></thead>
+                <tbody>
+                  <tr><td>João & Filhos</td><td>P-2001</td><td>1</td><td>291,07</td><td>2025-10-07</td></tr>
+                  <tr><td>DPD Portugal</td><td>P-1999</td><td>2</td><td>56,83</td><td>2025-10-03</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // wire buttons and enable resizers
+      setTimeout(()=>{
+        const btnC = contentArea.querySelector('#cf-clients');
+        const btnS = contentArea.querySelector('#cf-suppliers');
+        const tC = contentArea.querySelector('#cf-clients-table');
+        const tS = contentArea.querySelector('#cf-suppliers-table');
+        if(btnC && btnS && tC && tS){
+          btnC.addEventListener('click', ()=>{ btnC.classList.add('active'); btnS.classList.remove('active'); tC.classList.remove('hidden'); tS.classList.add('hidden'); enableResizableColumns(); });
+          btnS.addEventListener('click', ()=>{ btnS.classList.add('active'); btnC.classList.remove('active'); tS.classList.remove('hidden'); tC.classList.add('hidden'); enableResizableColumns(); });
+        }
+        enableResizableColumns();
+      },60);
+
+    } else {
+      contentArea.innerHTML = '<p style="color: #64748b; text-align: center; margin-top: 50px;">Conteúdo para ' + (sectionNames[section] || section) + ' em desenvolvimento</p>';
+    }
+  }
+};
+
+// Função para ordenar tabela
+window.sortTable = function(columnIndex) {
+  const table = document.getElementById('lotes-table');
+  const tbody = document.getElementById('lotes-tbody');
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  const header = table.querySelectorAll('th')[columnIndex];
+  
+  let sortOrder = header.getAttribute('data-sort');
+  if (sortOrder === 'none' || sortOrder === 'desc') {
+    sortOrder = 'asc';
+  } else {
+    sortOrder = 'desc';
+  }
+  
+  // Reset all headers
+  table.querySelectorAll('th').forEach(th => {
+    th.setAttribute('data-sort', 'none');
+    const span = th.querySelector('span');
+    if (span) span.textContent = '▲▼';
+  });
+  
+  // Set current header
+  header.setAttribute('data-sort', sortOrder);
+  const span = header.querySelector('span');
+  if (span) {
+    span.textContent = sortOrder === 'asc' ? '▲' : '▼';
+  }
+  
+  // Sort rows
+  rows.sort((a, b) => {
+    let aText = a.children[columnIndex].textContent.trim();
+    let bText = b.children[columnIndex].textContent.trim();
+    
+    // Handle numeric columns
+    if (columnIndex === 3) { // Quantidade
+      aText = parseInt(aText) || 0;
+      bText = parseInt(bText) || 0;
+      return sortOrder === 'asc' ? aText - bText : bText - aText;
+    }
+    
+    // Handle date columns
+    if (columnIndex === 2 || columnIndex === 4) { // Validade ou Criado em
+      const aDate = new Date(aText.split('-').reverse().join('-'));
+      const bDate = new Date(bText.split('-').reverse().join('-'));
+      return sortOrder === 'asc' ? aDate - bDate : bDate - aDate;
+    }
+    
+    // Handle text columns
+    return sortOrder === 'asc' ? aText.localeCompare(bText) : bText.localeCompare(aText);
+  });
+  
+  // Reorder DOM
+  rows.forEach(row => tbody.appendChild(row));
+};
+
+// Função para configurar os cálculos da página de preços
+window.setupPrecosCalculations = function() {
+  const precoFornecedor = document.getElementById('preco-fornecedor');
+  const desconto = document.getElementById('desconto');
+  const transporte = document.getElementById('transporte');
+  const precoCusto = document.getElementById('preco-custo');
+  const margemInputs = document.querySelectorAll('.margem-input');
+  const precoFinalInputs = document.querySelectorAll('.preco-final-input');
+  
+  if (!precoFornecedor || !desconto || !transporte || !precoCusto) return;
+  
+  // Função para calcular o preço custo
+  function calcularPrecoCusto() {
+    const fornecedor = parseFloat(precoFornecedor.value) || 0;
+    const descPercentagem = parseFloat(desconto.value) || 0;
+    const transp = parseFloat(transporte.value) || 0;
+    
+    // Desconto é em percentagem, então calculamos: fornecedor - (fornecedor * desconto%)
+    const valorDesconto = fornecedor * (descPercentagem / 100);
+    const custoFinal = fornecedor - valorDesconto + transp;
+    precoCusto.value = custoFinal.toFixed(2);
+    
+    // Recalcular todos os preços de venda
+    calcularPrecosVenda();
+  }
+  
+  // Função para calcular preços de venda baseados na margem
+  function calcularPrecosVenda() {
+    const custo = parseFloat(precoCusto.value) || 0;
+    
+    margemInputs.forEach((margemInput, index) => {
+      const margem = parseFloat(margemInput.value) || 0;
+      const precoFinal = custo * (1 + margem / 100);
+      
+      if (precoFinalInputs[index]) {
+        precoFinalInputs[index].value = precoFinal.toFixed(2);
+      }
+    });
+  }
+  
+  // Event listeners para cálculo automático do preço custo
+  precoFornecedor.addEventListener('input', calcularPrecoCusto);
+  desconto.addEventListener('input', calcularPrecoCusto);
+  transporte.addEventListener('input', calcularPrecoCusto);
+  
+  // Event listeners para cálculo automático dos preços de venda
+  margemInputs.forEach(input => {
+    input.addEventListener('input', calcularPrecosVenda);
+  });
+  
+  // Inicializar cálculos
+  calcularPrecoCusto();
+};
+
+// Função para configurar redimensionamento de colunas
+window.setupColumnResize = function() {
+  const table = document.getElementById('lotes-table');
+  if (!table) return;
+  
+  const resizeHandles = table.querySelectorAll('.resize-handle');
+  let isResizing = false;
+  let currentHandle = null;
+  let startX = 0;
+  let startWidth = 0;
+  
+  resizeHandles.forEach(handle => {
+    handle.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      isResizing = true;
+      currentHandle = handle;
+      startX = e.clientX;
+      
+      const th = handle.closest('th');
+      startWidth = th.offsetWidth;
+      
+      // Desabilitar ordenação temporariamente
+      const allHeaders = table.querySelectorAll('th[onclick]');
+      allHeaders.forEach(header => {
+        header.style.pointerEvents = 'none';
+      });
+      
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      
+      // Visual feedback
+      handle.style.background = '#2563eb';
+      document.body.style.cursor = 'col-resize';
+    });
+  });
+  
+  function handleMouseMove(e) {
+    if (!isResizing || !currentHandle) return;
+    
+    const diff = e.clientX - startX;
+    const newWidth = Math.max(30, startWidth + diff); // Minimum width 30px
+    
+    const th = currentHandle.closest('th');
+    th.style.width = newWidth + 'px';
+  }
+  
+  function handleMouseUp() {
+    if (!isResizing) return;
+    
+    isResizing = false;
+    if (currentHandle) {
+      currentHandle.style.background = '';
+      
+      // Reabilitar ordenação
+      const allHeaders = table.querySelectorAll('th[onclick]');
+      allHeaders.forEach(header => {
+        header.style.pointerEvents = 'auto';
+      });
+    }
+    currentHandle = null;
+    document.body.style.cursor = '';
+    
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  }
+};
+
+// Função para configurar redimensionamento dos painéis esquerdo/direito
+window.setupPanelResize = function() {
+  console.log('setupPanelResize chamada');
+  const resizer = document.getElementById('vertical-resizer');
+  const leftPanel = document.getElementById('left-panel');
+  const rightPanel = document.getElementById('right-panel');
+  const container = document.getElementById('lotes-container');
+  
+  console.log('Elementos encontrados:', {resizer, leftPanel, rightPanel, container});
+  
+  if (!resizer || !leftPanel || !rightPanel || !container) {
+    console.log('Alguns elementos não encontrados');
+    return;
+  }
+  
+  console.log('Todos os elementos encontrados, configurando eventos');
+  
+  // Adicionar efeitos hover
+  resizer.addEventListener('mouseenter', () => {
+    resizer.style.background = '#cbd5e1';
+  });
+  
+  resizer.addEventListener('mouseleave', () => {
+    if (!isResizing) {
+      resizer.style.background = '#e2e8f0';
+    }
+  });
+  
+  let isResizing = false;
+  let startX = 0;
+  let startLeftWidth = 0;
+  
+  resizer.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    isResizing = true;
+    startX = e.clientX;
+    startLeftWidth = leftPanel.getBoundingClientRect().width;
+    
+    document.addEventListener('mousemove', handlePanelResize);
+    document.addEventListener('mouseup', stopPanelResize);
+    
+    // Visual feedback
+    resizer.style.background = '#2563eb';
+    document.body.style.cursor = 'col-resize';
+  });
+  
+  function handlePanelResize(e) {
+    if (!isResizing) return;
+    
+    const containerWidth = container.getBoundingClientRect().width;
+    const diff = e.clientX - startX;
+    const newLeftWidth = startLeftWidth + diff;
+    
+    // Limites mínimos e máximos (20% - 80%)
+    const minWidth = containerWidth * 0.2;
+    const maxWidth = containerWidth * 0.8;
+    
+    if (newLeftWidth >= minWidth && newLeftWidth <= maxWidth) {
+      const leftPercentage = (newLeftWidth / containerWidth) * 100;
+      const rightPercentage = 100 - leftPercentage;
+      
+      leftPanel.style.width = leftPercentage + '%';
+      rightPanel.style.width = rightPercentage + '%';
+    }
+  }
+  
+  function stopPanelResize() {
+    isResizing = false;
+    resizer.style.background = 'transparent';
+    document.body.style.cursor = '';
+    
+    document.removeEventListener('mousemove', handlePanelResize);
+    document.removeEventListener('mouseup', stopPanelResize);
+  }
+};
+
+// Função para configurar os menus dos artigos
+function setupArtigosMenus(windowEl) {
+  console.log('Setup artigos menus chamado');
+  const menuBtns = windowEl.querySelectorAll('.artigo-menu-btn');
+  const contentArea = windowEl.querySelector('.artigo-content-area');
+  
+  console.log('Botões encontrados:', menuBtns.length);
+  console.log('Content area encontrada:', contentArea);
+  
+  menuBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      console.log('Botão clicado:', btn);
+      // Remove active de todos os botões
+      menuBtns.forEach(b => b.classList.remove('active'));
+      // Adiciona active ao botão clicado
+      btn.classList.add('active');
+      
+      // Determina o conteúdo baseado no menu selecionado
+      const sectionLabel = btn.querySelector('.label')?.textContent || btn.textContent.trim();
+      console.log('Section label:', sectionLabel);
+      let content = '';
+      
+      if (sectionLabel === 'Lotes') {
+        content = `
+          <div id="lotes-container" style="display: flex; height: 100%; position: relative;">
+            <!-- Lado Esquerdo: Lista de Lotes -->
+            <div id="left-panel" style="width: 60%; border: 1px solid #cbd5e1; background: white; margin-right: 5px;">
+              <div style="background: #f1f5f9; padding: 8px; border-bottom: 1px solid #cbd5e1; font-weight: 600; font-size: 12px;">
+                Histórico de Lotes
+              </div>
+              <div style="overflow-y: auto; max-height: 300px;">
+                <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
+                  <thead>
+                    <tr style="background: #f8fafc;">
+                      <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: left;">🟢</th>
+                      <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: left;">Lote</th>
+                      <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: left;">Validade</th>
+                      <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: left;">Quant.</th>
+                      <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: left;">Criado em</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style="cursor: pointer;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">🟢</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">ROLOS 400m</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">31-07-2026</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">5200</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">31-07-2020</td>
+                    </tr>
+                    <tr style="cursor: pointer;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">🟢</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">BRANCO - rolos 400m</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">13-11-2026</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">1500</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">13-11-2020</td>
+                    </tr>
+                    <tr style="cursor: pointer;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">🟡</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">RETALHO 1</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">31-07-2025</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">120</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">31-07-2020</td>
+                    </tr>
+                    <tr style="cursor: pointer;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">🟡</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">RETALHO 22.01</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">31-07-2024</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">0</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">20-06-2022</td>
+                    </tr>
+                    <tr style="cursor: pointer;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">🟢</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">ROLOS 300m</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">11-07-2025</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">0</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">11-07-2023</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            <!-- Divisória redimensionável -->
+            <div id="vertical-resizer" style="width: 3px; background: #e2e8f0; cursor: col-resize; position: relative; z-index: 10; margin: 0 1px; transition: background-color 0.2s;"></div>
+            
+            <!-- Lado Direito: Entradas/Saídas -->
+            <div id="right-panel" style="width: 40%; border: 1px solid #cbd5e1; background: white; margin-left: 5px;">
+              <div style="background: #f1f5f9; padding: 8px; border-bottom: 1px solid #cbd5e1; font-weight: 600; font-size: 12px;">
+                Entradas/saídas/produções do Lote
+              </div>
+              <div style="overflow-y: auto; max-height: 300px;">
+                <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
+                  <thead>
+                    <tr style="background: #f8fafc;">
+                      <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: left;">Lote</th>
+                      <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: left;">Qtd.</th>
+                      <th style="padding: 6px; border: 1px solid #e2e8f0; text-align: left;">Cli/For.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">RETALHO 1</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0; color: red;">-100</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">CLIENTE</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">RETALHO 1</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0; color: red;">-5</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">CLIENTE</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">ROLOS 400m</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0; color: red;">-400</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">CLIENTE</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">RETALHO 1</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0; color: red;">-10</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">CLIENTE</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">RETALHO 1</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0; color: red;">-50</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">CLIENTE</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">ROLOS 400m</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0; color: green;">+3200</td>
+                      <td style="padding: 4px; border: 1px solid #e2e8f0;">FORNECEDOR</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        content = `<p style="color: #64748b; text-align: center; margin-top: 50px;">Conteúdo para ${sectionLabel} em desenvolvimento</p>`;
+      }
+      
+      contentArea.innerHTML = content;
+      // After injecting content ensure lotes icons update
+      try{ if(typeof updateLotesIcons === 'function') updateLotesIcons(); }catch(_){ }
+    });
+  });
+}
+
+// Update the status icon (colored ball) for lotes tables based on quantity
+window.updateLotesIcons = function(root){
+  const base = root && root.querySelector ? root : document;
+  // target any lotes table body present
+  const tbodies = base.querySelectorAll('#lotes-tbody');
+  tbodies.forEach(tbody => {
+    Array.from(tbody.querySelectorAll('tr')).forEach(row => {
+      const qtyCell = row.children[3]; // Quant. column expected
+      const statusCell = row.children[0];
+      if(!qtyCell || !statusCell) return;
+      // extract numeric value (allow negatives and decimals)
+      const raw = qtyCell.textContent || '';
+      const num = parseFloat((raw || '').replace(/[^0-9\-\.]/g, '')) || 0;
+      let emoji = '🟡';
+      if(num > 0) emoji = '🟢';
+      else if(num < 0) emoji = '🔴';
+      else emoji = '🟡';
+      statusCell.textContent = emoji;
+      statusCell.setAttribute('title', (num>0? 'Disponível: ':'') + raw.trim());
+    });
+  });
+};
+
+// --- Gráficos: chart rendering and time-range selector ---
+window.setupGraficosPanel = function(windowEl){
+  const content = windowEl.querySelector('.artigo-content-area');
+  if(!content) return;
+
+  content.innerHTML = `
+    <div class="graficos-header">
+      <div style="font-weight:600">Gráficos de Stock</div>
+      <div class="graficos-actions">
+        <button id="open-range-btn" class="btn">Período</button>
+      </div>
+    </div>
+    <div class="graficos-chart-card">
+      <canvas id="stock-chart" width="800" height="320"></canvas>
+    </div>
+    <div id="time-range-modal" class="time-range-modal" role="dialog" aria-hidden="true">
+      <div style="font-weight:600;margin-bottom:8px">Escolher Período</div>
+      <div class="ranges">
+        <button data-range="1d">1dia</button>
+        <button data-range="1w">1semana</button>
+        <button data-range="1m">1mes</button>
+        <button data-range="1y">1ano</button>
+        <button data-range="custom">customizado</button>
+      </div>
+      <div class="custom-range" style="margin-top:10px; display:none;">
+        <label style="font-size:12px;">Início</label>
+        <input type="datetime-local" id="custom-start" />
+        <label style="font-size:12px;margin-left:8px">Fim</label>
+        <input type="datetime-local" id="custom-end" />
+        <div style="margin-top:8px;text-align:right">
+          <button id="apply-custom" class="btn btn-accent">Aplicar</button>
+        </div>
+      </div>
+      <div style="margin-top:8px;text-align:right"><button id="close-range" class="btn">Fechar</button></div>
+    </div>
+  `;
+
+  // Attach handlers
+  const openBtn = content.querySelector('#open-range-btn');
+  const modal = document.getElementById('time-range-modal') || content.querySelector('#time-range-modal');
+  const closeBtn = content.querySelector('#close-range');
+
+  if(openBtn && modal){
+    openBtn.addEventListener('click', ()=>{ modal.style.display = 'block'; modal.setAttribute('aria-hidden','false'); });
+  }
+  if(closeBtn && modal){ closeBtn.addEventListener('click', ()=>{ modal.style.display = 'none'; modal.setAttribute('aria-hidden','true'); }); }
+
+  // Chart data generation (demo). Build time series for stock geral and per lote if present.
+  function generateTimeSeries(range){
+    // create array of dates based on range
+    const now = new Date();
+    let points = [];
+    if(range === '1d'){
+      for(let i=0;i<24;i++){ const d = new Date(now.getTime() - ((23-i)*60*60*1000)); points.push(d); }
+    } else if(range === '1w'){
+      for(let i=0;i<7;i++){ const d = new Date(now.getTime() - ((6-i)*24*60*60*1000)); points.push(d); }
+    } else if(range === '1m'){
+      for(let i=0;i<30;i++){ const d = new Date(now.getTime() - ((29-i)*24*60*60*1000)); points.push(d); }
+    } else if(range === '1y'){
+      for(let i=0;i<12;i++){ const d = new Date(now.getFullYear(), now.getMonth() - (11-i), 1); points.push(d); }
+    } else {
+      // default 1m
+      for(let i=0;i<30;i++){ const d = new Date(now.getTime() - ((29-i)*24*60*60*1000)); points.push(d); }
+    }
+    return points;
+  }
+
+  function synthesizeSeries(dates){
+    // Stock geral random walk and two example lots if present (demo)
+    const geral = [];
+    const loteA = [];
+    const loteB = [];
+    let val = 200;
+    for(const d of dates){
+      val = Math.max(0, val + (Math.random()-0.4)*10);
+      geral.push(Math.round(val));
+      loteA.push(Math.max(0, Math.round(val * (0.4 + Math.random()*0.2))));
+      loteB.push(Math.max(0, Math.round(val * (0.2 + Math.random()*0.15))));
+    }
+    return {geral, lotes: { 'Lote A': loteA, 'Lote B': loteB }};
+  }
+
+  // initial render
+  let currentRange = '1m';
+  const ctx = content.querySelector('#stock-chart').getContext('2d');
+  let stockChart = null;
+
+  function renderChart(range){
+    const dates = generateTimeSeries(range);
+    const data = synthesizeSeries(dates);
+    const labels = dates.map(d => {
+      if(range === '1d') return d.getHours() + ':00';
+      if(range === '1w') return d.toLocaleDateString();
+      if(range === '1m') return d.toLocaleDateString();
+      if(range === '1y') return d.toLocaleString('default', {month:'short', year:'numeric'});
+      return d.toLocaleDateString();
+    });
+
+    const datasets = [];
+    datasets.push({ label: 'Stock Geral', data: data.geral, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.08)', tension: 0.2, fill:false });
+    Object.keys(data.lotes).forEach((k, idx) => {
+      const colors = ['#059669','#f59e0b','#ef4444','#8b5cf6'];
+      datasets.push({ label: k, data: data.lotes[k], borderColor: colors[idx%colors.length], backgroundColor: 'transparent', tension:0.2 });
+    });
+
+    if(stockChart) stockChart.destroy();
+    stockChart = new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets },
+      options: { responsive:true, maintainAspectRatio:false, scales:{ x:{ display:true, type:'category' }, y:{ display:true } } }
+    });
+  }
+
+  renderChart(currentRange);
+
+  // range buttons
+  const buttons = content.querySelectorAll('[data-range]');
+  buttons.forEach(b => b.addEventListener('click', (e)=>{
+    const r = b.dataset.range;
+    currentRange = r;
+    renderChart(r);
+    // toggle active
+    buttons.forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    if(modal){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }
+  }));
+
+  // customizado behaviour: show datetime inputs when selecting custom
+  const customBlock = content.querySelector('.custom-range');
+  const customBtn = Array.from(buttons).find(x=>x.dataset.range === 'custom');
+  const applyCustom = content.querySelector('#apply-custom');
+  const inputStart = content.querySelector('#custom-start');
+  const inputEnd = content.querySelector('#custom-end');
+
+  if(customBtn && customBlock){
+    customBtn.addEventListener('click', ()=>{
+      // show custom inputs inside modal
+      buttons.forEach(x=>x.classList.remove('active'));
+      customBtn.classList.add('active');
+      if(modal){ modal.style.display = 'block'; modal.setAttribute('aria-hidden','false'); }
+      customBlock.style.display = 'block';
+      // prefill with reasonable defaults: last 7 days
+      const now = new Date();
+      const prev = new Date(now.getTime() - (7*24*60*60*1000));
+      // to input value format
+      function toLocal(dt){ const pad=(n)=>String(n).padStart(2,'0'); const y=dt.getFullYear(); const m=pad(dt.getMonth()+1); const d=pad(dt.getDate()); const hh=pad(dt.getHours()); const mm=pad(dt.getMinutes()); return `${y}-${m}-${d}T${hh}:${mm}`; }
+      if(inputStart && inputEnd){ inputStart.value = toLocal(prev); inputEnd.value = toLocal(now); }
+    });
+  }
+
+  if(applyCustom && inputStart && inputEnd){
+    applyCustom.addEventListener('click', ()=>{
+      const s = inputStart.value;
+      const e = inputEnd.value;
+      if(!s || !e){ alert('Preencha início e fim'); return; }
+      const ds = new Date(s);
+      const de = new Date(e);
+      if(isNaN(ds.getTime()) || isNaN(de.getTime()) || ds >= de){ alert('Intervalo inválido. Certifique-se que início < fim.'); return; }
+
+      // decide resolution: hourly if span <48h else daily
+      const spanMs = de - ds;
+      const step = spanMs <= (48*60*60*1000) ? 'hour' : 'day';
+
+      // generate labels between ds and de
+      function generateCustomSeries(sDate, eDate, resolution){
+        const pts = [];
+        const cur = new Date(sDate.getTime());
+        if(resolution === 'hour'){
+          while(cur <= eDate){ pts.push(new Date(cur.getTime())); cur.setHours(cur.getHours()+1); }
+        } else {
+          // day resolution
+          while(cur <= eDate){ pts.push(new Date(cur.getFullYear(), cur.getMonth(), cur.getDate())); cur.setDate(cur.getDate()+1); }
+        }
+        return pts;
+      }
+
+      // synthesize and render using existing renderChart logic but with custom dates
+      const dates = generateCustomSeries(ds, de, step);
+      const data = synthesizeSeries(dates);
+      const labels = dates.map(d=>{
+        if(step === 'hour') return d.getHours()+':00 ' + d.toLocaleDateString();
+        return d.toLocaleDateString();
+      });
+
+      const datasets = [];
+      datasets.push({ label: 'Stock Geral', data: data.geral, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.08)', tension: 0.2, fill:false });
+      Object.keys(data.lotes).forEach((k, idx) => {
+        const colors = ['#059669','#f59e0b','#ef4444','#8b5cf6'];
+        datasets.push({ label: k, data: data.lotes[k], borderColor: colors[idx%colors.length], backgroundColor: 'transparent', tension:0.2 });
+      });
+
+      if(stockChart) stockChart.destroy();
+      stockChart = new Chart(ctx, { type: 'line', data: { labels, datasets }, options: { responsive:true, maintainAspectRatio:false, scales:{ x:{ display:true, type:'category' }, y:{ display:true } } } });
+
+      if(modal){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }
+      customBlock.style.display = 'none';
+    });
+  }
+};
 
 // Floating Settings window: uses the same tools input and saves to localStorage
 function openSettingsFloating(){
@@ -792,6 +1779,7 @@ function initApp(){
   // seed demo rows and enable resizers
   seedRandomRows();
   enableResizableColumns();
+  try{ if(typeof updateLotesIcons === 'function') updateLotesIcons(); }catch(_){ }
 
   // ensure only the dashboard panel is visible on startup
   document.querySelectorAll('.data-panel').forEach(p => p.classList.add('hidden'));
@@ -957,10 +1945,266 @@ function setupPOSEventListeners() {
 
   window.addEventListener('resize', handlePOSResize);
   handlePOSResize(); // Call initially
+
+  // Focus the bottom SKU entry when POS overlay opens and wire Enter for quick add
+  try{
+    const skuInput = document.getElementById('pos-entry-sku');
+    const qtyInput = document.getElementById('pos-entry-qty');
+    if(skuInput){
+      // When overlay becomes visible, focus
+      const overlay = document.getElementById('pos-overlay');
+      if(overlay){
+        const mo = new MutationObserver(()=>{
+          if(!overlay.classList.contains('hidden')){
+            try{ skuInput.focus(); skuInput.select(); }catch(_){ }
+          }
+        });
+        mo.observe(overlay, { attributes:true, attributeFilter:['class'] });
+      }
+
+      skuInput.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter'){
+          const code = skuInput.value || 'DEMO';
+          const qty = parseFloat(qtyInput?.value || '1') || 1;
+          // Try using posSystem.addToCart if exists (expects product id)
+          try{
+            if(window.posSystem && typeof window.posSystem.addToCart === 'function'){
+              // attempt to locate a product by code or name
+              const prod = (window.posSystem.products || []).find(p => (p.code && p.code.toLowerCase() === code.toLowerCase()) || (p.name && p.name.toLowerCase().includes(code.toLowerCase())));
+              if(prod){
+                // update the quantity then add
+                window.posSystem.addToCart(prod.id, qty);
+                skuInput.value = '';
+                return;
+              }
+            }
+          }catch(_){ }
+
+          // fallback: append a simple visual item to cart
+          const container = document.getElementById('pos-cart-items');
+          if(container){
+            const div = document.createElement('div');
+            div.className = 'pos-cart-item';
+            div.innerHTML = `<div class="pos-cart-item-info"><div class="pos-cart-item-name">${code}</div><div class="pos-cart-item-price">€1.25 x ${qty}</div></div>`;
+            container.appendChild(div);
+          }
+        }
+      });
+    }
+  }catch(_){ }
 }
 
 // Expor função para consola
 window.openWindow = openWindow;
+
+// Open a floating window 'Procura de Artigo' used by the Artigos -> Procurar button
+function openProcuraArtigoWindow(){
+  const content = `
+    <div style="display:flex;flex-direction:column;height:100%;">
+      <div class="procura-toolbar" style="display:flex;gap:8px;align-items:center;padding:8px;border-bottom:1px solid #e6eef7;">
+        <button class="procura-btn">Filtro</button>
+        <button class="procura-btn">Pesquisa Avançada</button>
+        <button class="procura-btn">Atualizar</button>
+        <div style="flex:1"></div>
+        <button class="procura-btn" id="procura-close">Fechar</button>
+      </div>
+
+      <div style="padding:12px">
+        <div class="procura-card" style="display:flex;gap:12px;align-items:center">
+          <div style="flex:1">
+            <label style="display:block;font-size:12px;color:#374151;margin-bottom:6px">Descrição</label>
+            <div class="procura-search-wrapper">
+              <input id="procura-desc" class="procura-input" type="text" placeholder="Pesquisar por descrição..." />
+              <span class="procura-search-icon">🔎</span>
+            </div>
+          </div>
+          <div style="width:240px">
+            <label style="display:block;font-size:12px;color:#374151;margin-bottom:6px">Referência</label>
+            <input id="procura-ref" class="procura-input" type="text" placeholder="Ex: A100" />
+          </div>
+          <div style="display:flex;align-items:end">
+            <button id="procura-search-btn" class="procura-btn btn-accent">Pesquisar</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:12px;flex:1;overflow:auto">
+        <div class="procura-table-card">
+          <table id="procura-articles-table" style="width:100%;border-collapse:collapse">
+            <thead>
+              <tr><th>SKU</th><th>Descrição</th><th>Stock</th><th>Preço</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>A100</td><td>Parafuso 4mm</td><td>124</td><td>0,05</td></tr>
+              <tr><td>A200</td><td>Lubrificante</td><td>42</td><td>2,50</td></tr>
+              <tr><td>B300</td><td>Rolamento</td><td>18</td><td>5,20</td></tr>
+              <tr><td>C400</td><td>Arruela</td><td>0</td><td>0,10</td></tr>
+              <tr><td>D500</td><td>Porca M6</td><td>-5</td><td>0,08</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const id = openWindow({ title: '🔎 Procura de Artigo', content, width: 720, height: 520, left: 120, top: 90 });
+
+  // attach handlers for the new window
+  const winEl = windows[id];
+  if(!winEl) return id;
+  // close toolbar button
+  const closeBtn = winEl.querySelector('#procura-close');
+  if(closeBtn) closeBtn.addEventListener('click', ()=> winEl.remove());
+
+  // wire simple filter: desc/ref inputs filter the table
+  const inputDesc = winEl.querySelector('#procura-desc');
+  const inputRef = winEl.querySelector('#procura-ref');
+  const searchBtn = winEl.querySelector('#procura-search-btn');
+  function filterProcura(){
+    const qd = (inputDesc && inputDesc.value || '').trim().toLowerCase();
+    const qr = (inputRef && inputRef.value || '').trim().toLowerCase();
+    const rows = Array.from(winEl.querySelectorAll('#procura-articles-table tbody tr'));
+    rows.forEach(r => {
+      const sku = (r.children[0].textContent||'').toLowerCase();
+      const desc = (r.children[1].textContent||'').toLowerCase();
+      let ok = true;
+      if(qd) ok = ok && desc.indexOf(qd) !== -1;
+      if(qr) ok = ok && sku.indexOf(qr) !== -1;
+      r.style.display = ok ? '' : 'none';
+    });
+  }
+  if(inputDesc) inputDesc.addEventListener('input', filterProcura);
+  if(inputRef) inputRef.addEventListener('input', filterProcura);
+  if(searchBtn) searchBtn.addEventListener('click', filterProcura);
+
+  // focus the description input for quick search and add Enter key to trigger search
+  setTimeout(()=>{ try{ if(inputDesc){ inputDesc.focus(); inputDesc.select(); inputDesc.addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ filterProcura(); } }); } }catch(_){ } }, 80);
+
+  // enable column resizing in this table as well
+  setTimeout(enableResizableColumns, 160);
+
+  return id;
+}
+
+// Open Client (Cliente) window
+function openClientWindow(){
+  const content = `
+    <div style="display:flex;flex-direction:column;height:100%;">
+      <div style="display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid #e6eef7;background:linear-gradient(90deg,#f8fafc,#eef2ff);">
+        <button class="btn">Novo</button>
+        <button class="btn">Inserir</button>
+        <button class="btn">Alterar</button>
+        <button class="btn">Eliminar</button>
+        <div style="flex:1"></div>
+        <button id="client-window-close" class="btn">Fechar</button>
+      </div>
+      <div style="display:flex;gap:12px;padding:12px;flex:1;overflow:auto;">
+        <div style="flex:1;">
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;">
+            <label style="font-size:13px;font-weight:600">Nº Cliente:</label>
+            <input type="text" id="client-id" style="padding:6px;border:1px solid #d1d5db;border-radius:6px;" />
+            <button class="btn">F2</button>
+            <label style="font-size:13px;font-weight:600;margin-left:12px">Nome:</label>
+            <input type="text" id="client-name" style="flex:1;padding:6px;border:1px solid #d1d5db;border-radius:6px;" />
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div>
+              <label class="pos-small-label">Morada</label>
+              <input type="text" id="client-address1" style="width:100%;padding:6px;border:1px solid #d1d5db;border-radius:6px;" />
+            </div>
+            <div>
+              <label class="pos-small-label">Localidade</label>
+              <input type="text" id="client-city" style="width:100%;padding:6px;border:1px solid #d1d5db;border-radius:6px;" />
+            </div>
+            <div>
+              <label class="pos-small-label">Código Postal</label>
+              <input type="text" id="client-postal" style="width:100%;padding:6px;border:1px solid #d1d5db;border-radius:6px;" />
+            </div>
+            <div>
+              <label class="pos-small-label">Telefone</label>
+              <input type="text" id="client-phone" style="width:100%;padding:6px;border:1px solid #d1d5db;border-radius:6px;" />
+            </div>
+            <div>
+              <label class="pos-small-label">Telemóvel</label>
+              <input type="text" id="client-mobile" style="width:100%;padding:6px;border:1px solid #d1d5db;border-radius:6px;" />
+            </div>
+            <div>
+              <label class="pos-small-label">Email</label>
+              <input type="email" id="client-email" style="width:100%;padding:6px;border:1px solid #d1d5db;border-radius:6px;" />
+            </div>
+            <div>
+              <label class="pos-small-label">Nº Contribuinte (NIF)</label>
+              <input type="text" id="client-nif" style="width:100%;padding:6px;border:1px solid #d1d5db;border-radius:6px;" />
+            </div>
+            <div>
+              <label class="pos-small-label">País</label>
+              <select id="client-country" style="width:100%;padding:6px;border:1px solid #d1d5db;border-radius:6px;"><option>PORTUGAL</option><option>ESPANHA</option></select>
+            </div>
+          </div>
+        </div>
+
+        <aside style="width:360px;display:flex;flex-direction:column;gap:8px;">
+          <div style="background:#fff;border:1px solid #e6eef7;padding:8px;border-radius:8px;">
+            <div style="font-weight:700;margin-bottom:6px;color:#0f172a">Informação Geral</div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:#6b7280"><div>Contas Abertas</div><div id="client-accounts-open">0</div></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:#6b7280"><div>T.M.R.</div><div id="client-tmr">0</div></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:#6b7280"><div>Pontos actuais</div><div id="client-points">0</div></div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #e6eef7;padding:8px;border-radius:8px;flex:1;overflow:auto;"> 
+            <div style="font-weight:700;margin-bottom:6px;color:#0f172a">Notas / Observações</div>
+            <textarea id="client-notes" style="width:100%;height:140px;padding:8px;border:1px solid #e6eef7;border-radius:6px;"></textarea>
+          </div>
+        </aside>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:8px;padding:12px;border-top:1px solid #e6eef7;background:#fafafa;">
+        <button id="client-save" class="btn-accent">Guardar</button>
+        <button id="client-cancel" class="btn">Fechar</button>
+      </div>
+    </div>
+  `;
+
+  const winId = openWindow({ title: '👥 Ficha de Cliente', content, width: 980, height: 620, left: 80, top: 60 });
+  const winEl = windows[winId];
+  if(!winEl) return;
+
+  // wire close button inside the window content
+  try{
+    const closeBtn = winEl.querySelector('#client-window-close');
+    if(closeBtn){ closeBtn.addEventListener('click', () => winEl.remove()); }
+    const cancelBtn = winEl.querySelector('#client-cancel');
+    if(cancelBtn){ cancelBtn.addEventListener('click', () => winEl.remove()); }
+    const saveBtn = winEl.querySelector('#client-save');
+    if(saveBtn){
+      saveBtn.addEventListener('click', () => {
+        // gather fields (simple demo save to localStorage)
+        const client = {
+          id: winEl.querySelector('#client-id')?.value || '',
+          name: winEl.querySelector('#client-name')?.value || '',
+          nif: winEl.querySelector('#client-nif')?.value || '',
+          phone: winEl.querySelector('#client-phone')?.value || '',
+          mobile: winEl.querySelector('#client-mobile')?.value || '',
+          email: winEl.querySelector('#client-email')?.value || '',
+          address1: winEl.querySelector('#client-address1')?.value || '',
+          city: winEl.querySelector('#client-city')?.value || '',
+          postal: winEl.querySelector('#client-postal')?.value || '',
+          country: winEl.querySelector('#client-country')?.value || '',
+          notes: winEl.querySelector('#client-notes')?.value || ''
+        };
+        try{
+          // store under demo key
+          const all = JSON.parse(localStorage.getItem('demo_clients') || '[]');
+          all.push(client);
+          localStorage.setItem('demo_clients', JSON.stringify(all));
+          // give feedback
+          alert('Cliente guardado (demo).');
+        }catch(e){ console.error('Erro ao guardar cliente demo', e); }
+      });
+    }
+  }catch(e){ console.error(e); }
+}
 
 // Settings menu interactions (show/hide sections)
 document.addEventListener('click', (e) => {
@@ -1302,3 +2546,118 @@ function simulateProgress() {
     }, step.delay);
   });
 }
+
+// === Custom context menu for PWA ===
+// Prevent the native browser context menu globally except for elements opting out (class .allow-native-context)
+;(function(){
+  let currentContextTarget = null;
+
+  // create menu element
+  const menu = document.createElement('div');
+  menu.className = 'custom-context-menu hidden';
+  menu.innerHTML = `<ul></ul>`;
+  document.body.appendChild(menu);
+
+  function buildTableMenu(tr, table){
+    const ul = menu.querySelector('ul');
+    ul.innerHTML = '';
+
+    // Copy row text
+    const liCopy = document.createElement('li');
+    liCopy.textContent = 'Copiar linha';
+    liCopy.addEventListener('click', async () => {
+      hideMenu();
+      if(!tr) return;
+      try{
+        const text = Array.from(tr.querySelectorAll('td')).map(td=>td.textContent.trim()).join('\t');
+        await navigator.clipboard.writeText(text);
+      }catch(e){ console.warn('Clipboard failed', e); }
+    });
+    ul.appendChild(liCopy);
+
+    // Export CSV
+    const liCsv = document.createElement('li');
+    liCsv.textContent = 'Exportar tabela (CSV)';
+    liCsv.addEventListener('click', () => {
+      hideMenu();
+      exportTableToCSV(table || tr && tr.closest('table'));
+    });
+    ul.appendChild(liCsv);
+
+    // Select all rows (simple highlight toggle)
+    const liSelect = document.createElement('li');
+    liSelect.textContent = 'Selecionar todas as linhas';
+    liSelect.addEventListener('click', () => {
+      hideMenu();
+      const all = (table || tr && tr.closest('table'))?.querySelectorAll('tbody tr');
+      if(!all) return;
+      all.forEach(r => r.classList.add('selected-row'));
+      setTimeout(()=> all.forEach(r => r.classList.remove('selected-row')), 1200);
+    });
+    ul.appendChild(liSelect);
+
+    // small muted hint
+    const liHint = document.createElement('li'); liHint.className='muted'; liHint.textContent='Clique fora para fechar';
+    ul.appendChild(liHint);
+  }
+
+  function showMenu(x,y){
+    menu.classList.remove('hidden');
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
+    // keep inside viewport
+    const rect = menu.getBoundingClientRect();
+    const pad = 8;
+    if(rect.right > window.innerWidth) menu.style.left = (window.innerWidth - rect.width - pad) + 'px';
+    if(rect.bottom > window.innerHeight) menu.style.top = (window.innerHeight - rect.height - pad) + 'px';
+  }
+
+  function hideMenu(){
+    menu.classList.add('hidden');
+    currentContextTarget = null;
+  }
+
+  function exportTableToCSV(tableEl){
+    if(!tableEl) return;
+    const rows = Array.from(tableEl.querySelectorAll('tr'));
+    const csv = rows.map(r => Array.from(r.querySelectorAll('th,td')).map(cell => '"' + (cell.textContent||'').replace(/"/g,'""') + '"').join(',')).join('\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = (tableEl.id || 'tabela') + '.csv';
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  }
+
+  // global contextmenu handler
+  document.addEventListener('contextmenu', (e) => {
+    // allow native context menu if element or ancestor has this class
+    if(e.target.closest('.allow-native-context')) return;
+
+    // intercept globally
+    e.preventDefault();
+
+    const tr = e.target.closest('tr');
+    const table = e.target.closest('table');
+    if(table){
+      currentContextTarget = {tr, table};
+      buildTableMenu(tr, table);
+      showMenu(e.clientX, e.clientY);
+      return;
+    }
+
+    // if clicked outside of a table, hide menu
+    hideMenu();
+  });
+
+  // hide on click, escape, resize, scroll
+  document.addEventListener('click', (e)=>{ if(!e.target.closest('.custom-context-menu')) hideMenu(); });
+  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') hideMenu(); });
+  window.addEventListener('resize', hideMenu);
+  window.addEventListener('scroll', hideMenu, true);
+
+  // helper: expose functions for other modules if needed
+  window.customContextMenu = {
+    showForTable(tableEl, x, y){ buildTableMenu(null, tableEl); showMenu(x,y); },
+    hide: hideMenu
+  };
+})();
