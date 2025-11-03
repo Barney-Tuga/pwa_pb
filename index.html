@@ -218,35 +218,111 @@
 
   <!-- Modal Definições / Edit Tools -->
   <div id="settings-modal" class="modal hidden" role="dialog" aria-modal="true">
-    <div class="modal-card">
-      <header class="modal-header">
-        <h3>Definições</h3>
+    <div class="modal-overlay"></div>
+    <div class="modal-window" role="document" aria-labelledby="settings-title">
+      <header class="modal-header" style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(0,0,0,0.04)">
+        <h3 id="settings-title" style="margin:0;font-size:16px">Definições</h3>
         <button id="close-settings" class="icon-btn">✕</button>
       </header>
 
-        
-      <div class="modal-body">
-        <div class="settings-tools">
-         <label>Ferramentas (vírgula separado)</label>
-         <input id="tools-input" type="text" placeholder="Facturação,Compras,Clientes" />
-        </div>
-        <!-- Appearance / Tema -->
-        <div class="settings-section" id="appearance-section">
-          <h4>Tema</h4>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-            <button class="theme-swatch" data-color="blue" title="Azul"></button>
-            <button class="theme-swatch" data-color="green" title="Verde"></button>
-            <button class="theme-swatch" data-color="red" title="Vermelho"></button>
-            <button class="theme-swatch" data-color="yellow" title="Amarelo"></button>
-            <button class="theme-swatch" data-color="orange" title="Laranja"></button>
-            <button class="theme-swatch" data-color="purple" title="Roxo"></button>
-            <button class="theme-swatch" data-color="pink" title="Rosa"></button>
+      <div class="modal-inner">
+        <nav class="modal-menu" aria-label="Menu de Definições">
+          <h3 style="margin:0 0 12px 0; font-size:13px;color:var(--muted)">Definições</h3>
+          <ul>
+            <li class="active" data-target="settings-geral" onclick="window.changeSettingsTab && window.changeSettingsTab(this,'settings-geral')">Geral</li>
+            <li data-target="settings-ferramentas" onclick="window.changeSettingsTab && window.changeSettingsTab(this,'settings-ferramentas')">Ferramentas</li>
+            <li data-target="settings-aparencia" onclick="window.changeSettingsTab && window.changeSettingsTab(this,'settings-aparencia')">Aparência</li>
+            <li data-target="settings-marcas" onclick="window.changeSettingsTab && window.changeSettingsTab(this,'settings-marcas')">Marcas</li>
+            <li data-target="settings-sobre" onclick="window.changeSettingsTab && window.changeSettingsTab(this,'settings-sobre')">Sobre</li>
+          </ul>
+        </nav>
+
+        <section class="modal-body">
+          <div id="settings-geral" class="modal-section">
+            <h4>Geral</h4>
+            <p>Opções gerais da aplicação.</p>
           </div>
-          <div style="margin-top:10px;">
-            <label style="display:flex;gap:8px;align-items:center"><input id="app-dark-mode-toggle" type="checkbox" /> Modo escuro</label>
+
+          <div id="settings-ferramentas" class="modal-section hidden">
+            <h4>Ferramentas</h4>
+            <label>Ferramentas (vírgula separado)</label>
+            <input id="tools-input" type="text" placeholder="Facturação,Compras,Clientes" />
           </div>
-        </div>
-        <label>Ferramentas (vírgula separador)</label>
+
+          <div id="settings-aparencia" class="modal-section hidden">
+            <h4>Aparência</h4>
+            <p>Escolha tema, cores e modo.</p>
+            <div style="display:flex;gap:12px;margin-top:12px;align-items:center">
+              <button class="theme-swatch" data-color="#2563eb" title="Azul" style="background:#2563eb"></button>
+              <button class="theme-swatch" data-color="#10b981" title="Verde" style="background:#10b981"></button>
+              <button class="theme-swatch" data-color="#ef4444" title="Vermelho" style="background:#ef4444"></button>
+              <button class="theme-swatch" data-color="#f59e0b" title="Amarelo" style="background:#f59e0b"></button>
+              <button class="theme-swatch" data-color="#f97316" title="Laranja" style="background:#f97316"></button>
+              <button class="theme-swatch" data-color="#8b5cf6" title="Roxo" style="background:#8b5cf6"></button>
+              <button class="theme-swatch" data-color="#ec4899" title="Rosa" style="background:#ec4899"></button>
+            </div>
+            <div style="margin-top:10px;">
+              <label style="display:flex;gap:8px;align-items:center"><input id="app-dark-mode-toggle" type="checkbox" /> Modo escuro</label>
+            </div>
+          </div>
+
+          <div id="settings-marcas" class="modal-section hidden">
+            <h4>Marcas e Modelos</h4>
+            <div style="display:flex;gap:18px;align-items:flex-start">
+              <!-- Left: marcas list -->
+              <div style="width:220px;background:white;border:1px solid #eef2ff;border-radius:6px;padding:10px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                  <strong>Marcas</strong>
+                  <button id="brand-add-btn" class="btn" style="font-size:12px;padding:4px 8px">+ Adicionar</button>
+                </div>
+                <ul id="brands-list" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;color:#0f1724"></ul>
+              </div>
+
+              <!-- Middle: brand details -->
+              <div style="flex:1;background:transparent;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;">
+                  <div style="flex:1;display:flex;align-items:center;gap:8px;">
+                    <div style="flex:1;min-width:0">
+                      <label style="display:block;font-weight:700;margin-bottom:6px">Marca</label>
+                      <input id="brand-name-input" type="text" placeholder="Nome da marca" style="width:100%;padding:10px;border:1px solid #e6eef8;border-radius:6px;font-size:14px;margin:0" />
+                    </div>
+                    <button id="brand-delete-btn" title="Remover marca" style="background:#fff;border:1px solid #f1f5f9;color:#ef4444;padding:8px 10px;border-radius:6px;height:40px;align-self:flex-start;margin-top:22px;">🗑️</button>
+                  </div>
+                </div>
+
+                <div style="display:flex;gap:20px;margin-top:6px">
+                  <div style="flex:1;">
+                    <h5 style="margin:0 0 10px 0;color:#0f1724">Foto da Marca</h5>
+                    <div id="brand-photo-preview" style="height:120px;border:2px dashed #e6eef8;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#94a3b8;background-repeat:no-repeat;background-position:center;background-size:contain">Sem imagem</div>
+                    <div style="margin-top:8px;">
+                      <input id="brand-photo-input" type="file" accept="image/*" />
+                    </div>
+                  </div>
+
+                  <!-- Right column: modelos -->
+                  <div style="width:320px;">
+                    <h5 style="margin:0 0 10px 0;color:#0f1724">Modelos</h5>
+                    <div id="brand-models-list" style="display:flex;flex-direction:column;gap:8px"></div>
+                    <div style="margin-top:12px">
+                      <button id="brand-add-model" class="btn-accent">Adicionar Modelo</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="settings-sobre" class="modal-section hidden">
+            <h4>Sobre</h4>
+            <p>Informação sobre a aplicação.</p>
+          </div>
+
+          <div class="modal-actions" style="margin-top:auto">
+            <div style="flex:1"></div>
+            <button id="settings-save" class="btn-primary">Guardar</button>
+            <button id="settings-close" class="btn">Fechar</button>
+          </div>
+        </section>
       </div>
     </div>
   </div>
@@ -254,6 +330,50 @@
   <script>
     window.PUBLIC_API_URL = 'http://localhost:3000/api';
   </script>
+      <!-- Model Edit Modal (nested, redesigned to match new spec) -->
+      <div id="model-edit-modal" class="nested-modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-card modal-model-edit" style="max-width:560px;margin:40px auto;padding:18px;">
+          <header class="modal-header" style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 8px 0">
+            <h3 style="margin:0;font-size:16px">Editar Modelo</h3>
+            <button id="model-edit-close" class="icon-btn">✕</button>
+          </header>
+
+          <div class="modal-body" style="padding-top:6px;">
+            <div class="model-edit-grid" style="display:flex;gap:16px;align-items:flex-start;">
+              <div class="model-edit-form" style="flex:1;min-width:0">
+                <label style="font-weight:600;display:block;margin-bottom:6px">Nome</label>
+                <input id="model-edit-name" type="text" style="width:100%;padding:10px;border:1px solid #e6eef8;border-radius:8px;margin-bottom:10px" />
+
+                <label style="font-weight:600;display:block;margin-bottom:6px">Descrição</label>
+                <textarea id="model-edit-desc" rows="4" style="width:100%;padding:10px;border:1px solid #e6eef8;border-radius:8px;margin-bottom:10px"></textarea>
+
+                <div style="display:flex;gap:10px;align-items:center;margin-top:6px">
+                  <input id="model-edit-file" type="file" accept="image/*" />
+                  <div class="file-hint" style="color:#94a3b8;font-size:12px">Sem imagem</div>
+                </div>
+              </div>
+
+              <div class="model-edit-image" style="width:160px;text-align:center;flex-shrink:0">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                  <div style="font-weight:600;color:#0f1724">Imagem</div>
+                </div>
+                <div id="model-edit-preview" class="image-preview" style="width:140px;height:120px;border:1px solid #edf2f7;border-radius:8px;background-repeat:no-repeat;background-position:center;background-size:contain;display:flex;align-items:center;justify-content:center;color:#94a3b8;margin:0 auto">Sem imagem</div>
+
+                <div class="image-controls" style="display:flex;gap:8px;justify-content:center;margin-top:10px">
+                  <button id="model-image-add" class="icon-square" title="Adicionar imagem" style="width:36px;height:36px;border-radius:8px;border:1px solid #e6eef8;background:#fff;cursor:pointer">+</button>
+                  <button id="model-image-remove" class="icon-square" title="Remover imagem" style="width:36px;height:36px;border-radius:8px;border:1px solid #e6eef8;background:#fff;cursor:pointer">-</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-actions model-edit-actions" style="display:flex;justify-content:center;gap:12px;margin-top:16px">
+            <button id="model-edit-cancel" class="btn" style="padding:10px 18px;border-radius:20px">Cancelar</button>
+            <button id="model-edit-remove" class="btn" style="padding:10px 18px;border-radius:20px;color:#ef4444;border:1px solid transparent;background:transparent">Remover</button>
+            <button id="model-edit-save" class="btn-primary" style="padding:10px 18px;border-radius:20px">Guardar</button>
+          </div>
+        </div>
+      </div>
   <script>
     // lightweight api client for PWA context
     (function(){
@@ -364,6 +484,72 @@
     </div>
   </div>
 
+  <!-- Brand delete confirmation modal (nested) -->
+  <div id="brand-delete-confirm" class="nested-modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card" style="max-width:420px;margin:40px auto;padding:16px;">
+      <header class="modal-header" style="display:flex;align-items:center;justify-content:space-between">
+        <h3 style="margin:0;font-size:16px">Confirmar eliminação</h3>
+        <button id="brand-delete-confirm-close" class="icon-btn">✕</button>
+      </header>
+      <div class="modal-body" style="padding-top:12px">
+        <p>Tem a certeza que pretende eliminar a marca <strong id="brand-delete-confirm-name">?</strong>?</p>
+      </div>
+      <div class="modal-actions" style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+        <button id="brand-delete-confirm-cancel" class="btn">Cancelar</button>
+        <button id="brand-delete-confirm-yes" class="btn-primary">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Brand Modal (nested) -->
+  <div id="add-brand-modal" class="nested-modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card" style="max-width:480px;margin:40px auto;padding:16px;">
+      <header class="modal-header" style="display:flex;align-items:center;justify-content:space-between">
+        <h3 style="margin:0;font-size:16px">Adicionar Marca</h3>
+        <button id="add-brand-close" class="icon-btn">✕</button>
+      </header>
+      <div class="modal-body" style="padding-top:12px">
+        <label style="display:block;font-weight:600;margin-bottom:8px">Nome</label>
+        <input id="add-brand-name" type="text" placeholder="Nome da marca" style="width:100%;padding:10px;border:1px solid #e6eef8;border-radius:8px;margin-bottom:10px" />
+      </div>
+      <div class="modal-actions" style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+        <button id="add-brand-cancel" class="btn">Cancelar</button>
+        <button id="add-brand-save" class="btn-primary">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Model Modal (nested) -->
+  <div id="add-model-modal" class="nested-modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card" style="max-width:520px;margin:40px auto;padding:16px;">
+      <header class="modal-header" style="display:flex;align-items:center;justify-content:space-between">
+        <h3 style="margin:0;font-size:16px">Adicionar Modelo</h3>
+        <button id="add-model-close" class="icon-btn">✕</button>
+      </header>
+      <div class="modal-body" style="padding-top:12px">
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="flex:1;min-width:0">
+            <label style="display:block;font-weight:600;margin-bottom:6px">Nome</label>
+            <input id="add-model-name" type="text" placeholder="Nome do modelo" style="width:100%;padding:8px;border:1px solid #e6eef8;border-radius:6px;margin-bottom:8px" />
+            <label style="display:block;font-weight:600;margin-bottom:6px">Descrição</label>
+            <textarea id="add-model-desc" rows="3" style="width:100%;padding:8px;border:1px solid #e6eef8;border-radius:6px;margin-bottom:8px"></textarea>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input id="add-model-file" type="file" accept="image/*" />
+              <div style="color:#94a3b8;font-size:12px">Sem imagem</div>
+            </div>
+          </div>
+          <div style="width:140px;text-align:center;flex-shrink:0">
+            <div id="add-model-preview" style="width:140px;height:120px;border:1px solid #edf2f7;border-radius:8px;background-repeat:no-repeat;background-position:center;background-size:contain;display:flex;align-items:center;justify-content:center;color:#94a3b8">Sem imagem</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions" style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+        <button id="add-model-cancel" class="btn">Cancelar</button>
+        <button id="add-model-save" class="btn-primary">Guardar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- POS Settings Modal -->
   <div id="pos-settings-modal" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-card">
@@ -430,6 +616,29 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="" crossorigin="anonymous" defer></script>
+  <!-- Toast container + helper (global) -->
+  <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+  <script>
+    // global toast helper used by app.js
+    window.showToast = function(message, type='info', opts={}){
+      try{
+        const container = document.getElementById('toast-container'); if(!container) return;
+        const toast = document.createElement('div'); toast.className = 'toast-item toast-'+(type||'info');
+        // allow newline -> <br>
+        const html = (''+message).replace(/\n/g,'<br>');
+        toast.innerHTML = html;
+        // optional auto-dismiss timeout
+        const timeout = (opts && opts.timeout!=null) ? opts.timeout : 4000;
+        container.appendChild(toast);
+        // enter animation
+        requestAnimationFrame(()=>{ toast.classList.add('show'); });
+        // remove after timeout
+        if(timeout>0){ setTimeout(()=>{ toast.classList.remove('show'); setTimeout(()=>{ try{ container.removeChild(toast); }catch(_){} },300); }, timeout); }
+        // allow click to dismiss
+        toast.addEventListener('click', ()=>{ toast.classList.remove('show'); setTimeout(()=>{ try{ container.removeChild(toast); }catch(_){} },240); });
+      }catch(e){ console.error('showToast error', e); }
+    };
+  </script>
   <script src="app.js?v=20251017" defer></script>
 </body>
 </html>
