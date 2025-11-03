@@ -443,6 +443,11 @@ body{overflow:hidden}
 .modal-header{display:flex;align-items:center;justify-content:space-between}
 .modal-body input{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06);outline:none}
 .modal-footer{display:flex;justify-content:flex-end;gap:8px}
+
+/* Nested modal: centered card without page overlay/blur (used for small edit dialogs inside an open modal) */
+.nested-modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:2600;pointer-events:auto;background:rgba(6,10,20,0.08)}
+.nested-modal .modal-card{pointer-events:auto;box-shadow:0 18px 40px rgba(2,6,23,0.35);}
+.nested-modal .modal-overlay{display:none}
 .btn{background:transparent;border:1px solid rgba(16,24,40,0.06);padding:8px 12px;border-radius:8px;cursor:pointer}
 .btn-accent{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;border:0;padding:8px 12px;border-radius:8px;cursor:pointer}
 .btn.ghost{background:transparent;border:0}
@@ -1141,7 +1146,7 @@ body{overflow:hidden}
   display: block !important;
 }
 
-.artigos-toolbar {
+.artigos-toolbar, .clientes-toolbar {
   display: flex;
   gap: 6px;
   padding: 6px 8px;
@@ -1179,6 +1184,8 @@ body{overflow:hidden}
   font-weight: 500;
 }
 
+
+
 .artigo-info {
   display: flex;
   gap: 12px;
@@ -1199,6 +1206,46 @@ body{overflow:hidden}
   margin-bottom: 4px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+/* Unified labels for all floating windows - based on artigos labels */
+.window label {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Dark mode override for window labels */
+body.theme-dark .window label {
+  color: #cbd5e0;
+}
+
+/* Unified text input styles for all windows (based on artigos inputs) */
+.window input[type="text"],
+.window input[type="tel"],
+.window input[type="number"],
+.window input[type="email"] {
+  padding: 6px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 3px;
+  background: white;
+  font-size: 12px;
+  color: #334155;
+  box-sizing: border-box;
+}
+
+/* Dark mode override for inputs inside windows */
+body.theme-dark .window input[type="text"],
+body.theme-dark .window input[type="tel"],
+body.theme-dark .window input[type="number"],
+body.theme-dark .window input[type="email"]{
+  background: #2d3748;
+  color: #e2e8f0;
+  border: 1px solid rgba(255,255,255,0.06);
 }
 
 .artigo-ref input, .artigo-nome input {
@@ -1242,6 +1289,35 @@ body{overflow:hidden}
   font-size: 10px;
 }
 
+/* Make clientes tabs match artigos menu tabs visually */
+.clientes-tabs {
+  display: flex;
+  gap: 1px;
+  padding: 4px 6px;
+  background: linear-gradient(135deg, #1e40af, #1e3a8a);
+  overflow-x: auto;
+  border-radius: 0;
+}
+.clientes-tabs .artigo-menu-btn{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px; /* keep horizontal padding, set explicit height below */
+  height: 27px; /* reduced height per request */
+  min-height: 27px;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  border-radius: 3px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  white-space: nowrap;
+  font-size: 11px;
+}
+.clientes-tabs .artigo-menu-btn.active{ background: rgba(255,255,255,0.22); box-shadow: inset 0 -2px 0 rgba(0,0,0,0.06) }
+.clientes-tabs .artigo-menu-btn .icon{ font-size:12px }
+.clientes-tabs .artigo-menu-btn .label{ font-size:9px; font-weight:600 }
+
 .artigo-menu-btn:hover {
   background: rgba(255,255,255,0.25);
 }
@@ -1267,7 +1343,7 @@ body{overflow:hidden}
 }
 
 /* Artigos dentro de janelas flutuantes */
-.window .artigos-toolbar,
+.window .artigos-toolbar, .window .clientes-toolbar,
 .window .artigo-info,
 .window .artigos-menu-tabs,
 .window .artigo-content-area {
@@ -1477,8 +1553,8 @@ body{overflow:hidden}
 .window[data-window="dados-clientes"] select {
   font-size: 11px;
   padding: 4px;
-  height: 24px;
-  line-height: 24px;
+  height: 22px;
+  line-height: 22px;
   box-sizing: border-box;
 }
 
@@ -1500,7 +1576,158 @@ body{overflow:hidden}
 .clientes-root{height:100%;display:flex;flex-direction:column;font-size:11px}
 .clientes-toolbar-actions{display:flex;gap:8px;align-items:center}
 .clientes-info{background:#fff;border-bottom:1px solid #e6eef7;padding:10px 14px;display:flex;align-items:center;gap:12px}
-.clientes-main{display:flex;flex:1;gap:8px;padding:14px;background:#f8fafc;box-sizing:border-box;overflow:auto;font-size:11px}
+.clientes-main{display:flex;flex:1;gap:12px;padding:14px;background:#f1f5f9;box-sizing:border-box;overflow:auto;font-size:11px}
+
+/* Clientes window: overall chrome and header */
+.window[data-window="dados-clientes"]{ --clientes-accent:#1e62d0; border-radius:10px; overflow:hidden; box-shadow: 0 8px 26px rgba(20,36,63,0.12); border: 2px solid #2563eb; }
+.window[data-window="dados-clientes"] .titlebar{ background: linear-gradient(90deg,var(--clientes-accent),#174fb0); color: #fff; border-bottom: 1px solid rgba(0,0,0,0.06); padding:10px 12px; height:44px; box-sizing:border-box }
+.window[data-window="dados-clientes"] .titlebar .title{ font-weight:700; letter-spacing:0.6px; font-size:13px }
+
+/* Titlebar embedded toolbar for Clientes */
+.window[data-window="dados-clientes"] .titlebar .title{ display:flex; align-items:center; gap:10px }
+.window[data-window="dados-clientes"] .titlebar .clientes-title-toolbar{ display:flex; gap:8px; align-items:center }
+.window[data-window="dados-clientes"] .titlebar .clientes-title-toolbar .artigo-btn{ background: linear-gradient(180deg,#4f8ffb,#2b6be6); color:#fff; border:1px solid rgba(0,0,0,0.08); padding:6px 10px; border-radius:6px; display:inline-flex; gap:8px; align-items:center; box-shadow: 0 2px 0 rgba(0,0,0,0.06); font-weight:600; font-size:12px }
+.window[data-window="dados-clientes"] .titlebar .clientes-title-toolbar .artigo-btn .icon{ font-size:14px }
+.window[data-window="dados-clientes"] .titlebar .title-text{ font-weight:700; color:#fff; margin-left:6px }
+.window[data-window="dados-clientes"] .titlebar .clientes-title-toolbar .artigo-btn:hover{ transform: translateY(-1px) }
+
+/* Top action toolbar inside clientes window (buttons like Criar, Procurar...) */
+/* toolbar sits visually inside the blue header bar */
+.window[data-window="dados-clientes"] .content{ padding:0; background:transparent }
+.window[data-window="dados-clientes"] .clientes-toolbar{ display:flex; gap:8px; align-items:center; padding:6px 8px; background: linear-gradient(135deg, #3b82f6, #1e40af); border-radius:0; margin:0 }
+.window[data-window="dados-clientes"] .clientes-toolbar .artigo-btn{
+  /* match artigos toolbar button look: translucent white on blue */
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border: none;
+  padding: 0 8px;
+  height: 24px;
+  min-height: 24px;
+  border-radius: 4px;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+  font-weight: 600;
+  font-size: 11px;
+}
+.window[data-window="dados-clientes"] .clientes-toolbar .artigo-btn .icon{ font-size:13px }
+.window[data-window="dados-clientes"] .clientes-toolbar .artigo-btn:hover{ transform: translateY(-1px) }
+
+/* Top quick fields row (Nº CLIENTE, NOME, DATA) - mimic artigo-info styles */
+.window[data-window="dados-clientes"] .clientes-top-row{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  padding:10px 12px;
+  background: #f1f5f9; /* same as .artigo-info */
+  border-bottom: 2px solid #cbd5e1; /* match artigos separator */
+}
+.window[data-window="dados-clientes"] .clientes-top-row .field{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.window[data-window="dados-clientes"] .clientes-top-row .field-inline{
+  display:flex;
+  flex-direction:column; /* label above input, like .artigo-ref */
+  align-items:flex-start;
+  gap:4px; /* small gap between label and input */
+  flex: 0 0 auto; /* don't stretch, keep left-aligned */
+}
+.window[data-window="dados-clientes"] .clientes-top-row .field-inline .clientes-label{
+  display:block;
+  font-size:10px;
+  font-weight:600;
+  color:#334155;
+  margin-bottom:4px;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+}
+.window[data-window="dados-clientes"] .client-name-field{ flex:1; display:flex; flex-direction:column }
+.window[data-window="dados-clientes"] .clientes-top-row .clientes-label{
+  display:block;
+  font-size:10px;
+  font-weight:600;
+  color:#334155;
+  margin-bottom:4px;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+}
+.window[data-window="dados-clientes"] .clientes-top-row .clientes-input{
+  width:100%;
+  padding:6px 8px;
+  border:1px solid #cbd5e1;
+  border-radius:3px;
+  background:white;
+  font-size:12px;
+  color:#334155;
+  box-sizing:border-box;
+}
+.window[data-window="dados-clientes"] .clientes-top-row .field-inline .clientes-input.small{ width:110px }
+.window[data-window="dados-clientes"] .clientes-top-row .client-name{ flex:1 }
+
+/* small helpers replaced inline styles -> classes */
+.window[data-window="dados-clientes"] .clientes-root{ height:100%; display:flex; flex-direction:column }
+.window[data-window="dados-clientes"] .clientes-top-row .field-inline{ display:flex; flex-direction:column; align-items:flex-start; gap:4px }
+.window[data-window="dados-clientes"] .field-right{ text-align:right }
+.window[data-window="dados-clientes"] .date-field{ width:180px }
+
+.window[data-window="dados-clientes"] .clientes-label{ font-weight:700; font-size:11px; letter-spacing:0.5px; text-transform:uppercase; color:#0f172a; display:block; margin-bottom:4px }
+.window[data-window="dados-clientes"] .clientes-input{ border:1px solid #d1d5db; border-radius:6px; background:white; font-size:11px; box-sizing:border-box }
+.window[data-window="dados-clientes"] .clientes-input.small{ width:110px }
+.window[data-window="dados-clientes"] .clientes-input.full{ width:100% }
+
+/* form grid helpers */
+.window[data-window="dados-clientes"] .clientes-form-card{ background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:12px }
+.window[data-window="dados-clientes"] .clientes-form-card label{
+  text-transform:capitalize; /* only first letter of each word capitalized */
+  font-weight:600; /* remove bold */
+  font-size:11px;
+  color:#334155;
+  margin-bottom:6px;
+}
+.window[data-window="dados-clientes"] .clientes-form-grid{ display:grid; grid-template-columns:120px 1fr 120px 1fr; gap:10px 14px; align-items:center }
+.window[data-window="dados-clientes"] .clientes-form-grid .span-3{ grid-column:2 / span 3 }
+
+/* aside */
+.window[data-window="dados-clientes"] .clientes-aside{ width:340px; display:flex; flex-direction:column; gap:12px; min-width:260px }
+.window[data-window="dados-clientes"] .clientes-aside-card{ background:white; border:1px solid #e2e8f0; padding:12px; border-radius:8px }
+.window[data-window="dados-clientes"] .aside-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px }
+.window[data-window="dados-clientes"] .aside-title{ font-weight:700; color:#0f172a }
+.window[data-window="dados-clientes"] .aside-actions{ display:flex; gap:6px }
+.window[data-window="dados-clientes"] .contact-list{ height:90px; border:1px dashed #e6eef7; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#94a3b8 }
+.window[data-window="dados-clientes"] .aside-grid{ display:grid; grid-template-columns:1fr 60px; gap:6px 10px; align-items:center; font-size:13px; color:#0f172a }
+.window[data-window="dados-clientes"] .aside-value{ text-align:right }
+.window[data-window="dados-clientes"] .aside-actions-row{ display:flex; justify-content:flex-end; margin-top:8px }
+
+/* footer */
+.window[data-window="dados-clientes"] .clientes-footer{ display:flex; justify-content:flex-end; gap:8px; padding:12px; border-top:1px solid #e6eef7; background:#fafafa }
+
+/* Tabs under top row */
+.window[data-window="dados-clientes"] .clientes-tabs{ display:flex; gap:6px; padding:4px 6px; background: linear-gradient(90deg,var(--clientes-accent),#174fb0)}
+.window[data-window="dados-clientes"] .clientes-tabs button{ background:transparent; color:#fff; border:0; padding:0 10px; height:27px; min-height:27px; border-radius:6px; cursor:pointer; font-weight:600; display:inline-flex; align-items:center; gap:8px }
+.window[data-window="dados-clientes"] .clientes-tabs button.active{ background: rgba(255,255,255,0.14); box-shadow: inset 0 -2px 0 rgba(0,0,0,0.06); color:#fff }
+.window[data-window="dados-clientes"] .clientes-tabs button .label{ font-size:9px }
+
+/* Main area: left form and right aside */
+.window[data-window="dados-clientes"] .clientes-main { display:flex; gap:18px; }
+.window[data-window="dados-clientes"] .clientes-form { flex:1; }
+.window[data-window="dados-clientes"] .clientes-aside { width:320px; display:flex; flex-direction:column; gap:12px }
+
+/* Form rows: two-column grid */
+.window[data-window="dados-clientes"] .clientes-form .form-grid{ display:grid; grid-template-columns: 160px 1fr 160px 1fr; gap:10px 14px; align-items:center }
+.window[data-window="dados-clientes"] .clientes-form .form-grid label{ font-size:11px; color:#334155; text-transform:capitalize; font-weight:400 }
+.window[data-window="dados-clientes"] .clientes-form .form-grid input{ height:28px; padding:6px 8px; border-radius:6px; border:1px solid #e2e8f0; background:white }
+
+/* Right side cards */
+.window[data-window="dados-clientes"] .clientes-aside .card{ background:#fff; border:1px solid #e6eef7; border-radius:8px; padding:12px }
+
+/* Small tweaks to match the screenshot feel */
+.window[data-window="dados-clientes"] .clientes-info{ display:none }
+.window[data-window="dados-clientes"] .clientes-info .btn{ background: rgba(255,255,255,0.12); color:#fff }
 .clientes-form-card{background:#fff;border:1px solid #e6eef7;border-radius:8px;padding:12px}
 .clientes-form-grid{display:grid;grid-template-columns:100px 1fr 100px 1fr;gap:6px 8px;align-items:center;font-size:11px}
 .clientes-aside{width:340px;display:flex;flex-direction:column;gap:12px;min-width:260px}
@@ -1735,7 +1962,7 @@ body.theme-dark .titlebar .title{ color: #e2e8f0 }
 body.theme-dark .win-btn{ background: rgba(255,255,255,0.05); color:#e2e8f0 }
 
 /* Artigos toolbar/buttons */
-body.theme-dark .artigos-toolbar, body.theme-dark .artigo-menu-btn, body.theme-dark .artigo-btn{ background: rgba(255,255,255,0.06); color:#e2e8f0 }
+body.theme-dark .artigos-toolbar, body.theme-dark .clientes-toolbar, body.theme-dark .artigo-menu-btn, body.theme-dark .artigo-btn{ background: rgba(255,255,255,0.06); color:#e2e8f0 }
 body.theme-dark .artigo-btn:hover, body.theme-dark .artigo-menu-btn:hover{ background: rgba(255,255,255,0.08) }
 body.theme-dark .artigo-info{ background: rgba(255,255,255,0.03); border-bottom-color: rgba(255,255,255,0.05); }
 
@@ -1909,6 +2136,12 @@ body.theme-dark .window[data-window="dados-clientes"] textarea{
   background: #2d3748; color: #e2e8f0; border: 1px solid rgba(255,255,255,0.06);
 }
 
+/* Ensure inputs in clientes window in dark mode follow compact sizing too */
+body.theme-dark .window[data-window="dados-clientes"] input,
+body.theme-dark .window[data-window="dados-clientes"] select{
+  font-size:11px; padding:4px; height:22px; line-height:22px; box-sizing:border-box;
+}
+
 body.theme-dark .window[data-window="dados-clientes"] .clientes-aside-card{ padding:12px }
 
 /* Clientes toolbar buttons: make them pop */
@@ -1988,3 +2221,233 @@ body.theme-dark .artigo-content-area{ background: transparent !important }
 
 /* cf-btn active state in dark mode */
 body.theme-dark .cf-btn.active{ background: linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.07)); color:#e2e8f0; border-color: rgba(255,255,255,0.05) }
+
+/* Override modern styles for traditional ERP look */
+.window[data-window="orcamento"] {
+  background: #f0f0f0 !important;
+  border: 2px outset #ccc !important;
+  border-radius: 0 !important;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.3) !important;
+}
+
+.window[data-window="orcamento"] .titlebar {
+  background: #c0c0c0 !important;
+  border-bottom: 1px solid #808080 !important;
+  border-radius: 0 !important;
+}
+
+.window[data-window="orcamento"] .titlebar .title {
+  color: #000 !important;
+  text-shadow: none !important;
+}
+
+.window[data-window="orcamento"] .win-btn {
+  background: #e0e0e0 !important;
+  border: 1px outset #ccc !important;
+  border-radius: 0 !important;
+  color: #000 !important;
+}
+
+.window[data-window="orcamento"] .win-btn:hover {
+  background: #d0d0d0 !important;
+  transform: none !important;
+}
+
+.window[data-window="orcamento"] .content {
+  padding: 0 !important;
+}
+
+/* Dark mode overrides for traditional look - make it look like classic Windows */
+body.theme-dark .window[data-window="orcamento"] {
+  background: #c0c0c0 !important;
+  border: 2px outset #808080 !important;
+  color: #000 !important;
+}
+
+body.theme-dark .window[data-window="orcamento"] .titlebar {
+  background: #000080 !important;
+  color: #fff !important;
+}
+
+body.theme-dark .window[data-window="orcamento"] .titlebar .title {
+  color: #fff !important;
+}
+
+body.theme-dark .window[data-window="orcamento"] .win-btn {
+  background: #c0c0c0 !important;
+  border: 1px outset #808080 !important;
+  color: #000 !important;
+}
+
+body.theme-dark .window[data-window="orcamento"] input,
+body.theme-dark .window[data-window="orcamento"] select,
+body.theme-dark .window[data-window="orcamento"] textarea {
+  background: white !important;
+  color: #000 !important;
+  border: 1px inset #ccc !important;
+}
+
+body.theme-dark .window[data-window="orcamento"] button {
+  background: #e0e0e0 !important;
+  border: 1px outset #ccc !important;
+  color: #000 !important;
+}
+
+body.theme-dark .window[data-window="orcamento"] .orc-tab-btn {
+  background: #e8e8e8 !important;
+  border: none !important;
+  color: #000 !important;
+}
+
+body.theme-dark .window[data-window="orcamento"] .orc-tab-btn.active {
+  background: #f0f0f0 !important;
+  font-weight: bold !important;
+}
+
+/* Responsive layout for orçamento window when window width < 900px */
+.window[data-window="orcamento"].responsive-narrow .orc-geral-container {
+  width: 100% !important;
+  max-width: 400px !important;
+}
+
+.window[data-window="orcamento"].responsive-narrow .form-row {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  margin-bottom: 16px !important;
+}
+
+.window[data-window="orcamento"].responsive-narrow .form-row label {
+  width: auto !important;
+  margin-bottom: 4px !important;
+  margin-right: 0 !important;
+  text-align: left !important;
+  font-weight: bold !important;
+  padding: 2px 0 !important;
+}
+
+.window[data-window="orcamento"].responsive-narrow .form-row select,
+.window[data-window="orcamento"].responsive-narrow .form-row input[type="text"],
+.window[data-window="orcamento"].responsive-narrow .form-row input[type="date"] {
+  width: 100% !important;
+  max-width: 350px !important;
+  margin-right: 0 !important;
+  margin-bottom: 8px !important;
+}
+
+.window[data-window="orcamento"].responsive-narrow .form-row input[type="number"] {
+  width: 80px !important;
+  margin-right: 4px !important;
+}
+
+.window[data-window="orcamento"].responsive-narrow .form-row > div {
+  width: 100% !important;
+  justify-content: flex-start !important;
+}
+
+/* Toolbar stays the same - no responsive changes needed */
+
+/* Add vertical scroll to content when needed */
+.window[data-window="orcamento"].responsive-narrow {
+  overflow-y: auto !important;
+}
+
+.window[data-window="orcamento"].responsive-narrow .content {
+  overflow-y: auto !important;
+  max-height: calc(100vh - 200px) !important;
+}
+
+/* Responsive header */
+.window[data-window="orcamento"].responsive-narrow .orc-header {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+  padding: 8px !important;
+}
+
+.window[data-window="orcamento"].responsive-narrow .orc-header > div {
+  width: 100% !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+.window[data-window="orcamento"].responsive-narrow .orc-header label {
+  margin-right: 4px !important;
+  white-space: nowrap !important;
+}
+
+.window[data-window="orcamento"].responsive-narrow .orc-header select,
+.window[data-window="orcamento"].responsive-narrow .orc-header input {
+  margin-right: 8px !important;
+  margin-bottom: 4px !important;
+}
+
+/* Responsive cabeçalho section */
+.window[data-window="orcamento"].responsive-narrow .cabecalho-content {
+  padding: 8px !important;
+}
+
+.window[data-window="orcamento"].responsive-narrow .cabecalho-content > div {
+  margin-bottom: 12px !important;
+}
+
+.window[data-window="orcamento"].responsive-narrow .cabecalho-content label {
+  width: auto !important;
+  margin-bottom: 4px !important;
+  margin-right: 0 !important;
+  text-align: left !important;
+  font-weight: bold !important;
+  display: block !important;
+}
+
+.window[data-window="orcamento"].responsive-narrow .cabecalho-content input,
+.window[data-window="orcamento"].responsive-narrow .cabecalho-content select {
+  width: 100% !important;
+  max-width: 350px !important;
+  margin-bottom: 8px !important;
+}
+
+/* Styles for redesigned Edit Model modal (matches attached design) */
+.modal-model-edit { background: linear-gradient(180deg,#fff,#fbfdff); border-radius:12px; }
+.modal-model-edit .model-edit-grid { align-items:flex-start; }
+.modal-model-edit .model-edit-form label { font-size:13px; color:#0f1724; margin-bottom:6px; display:block }
+.modal-model-edit input[type="text"],
+.modal-model-edit textarea { border:1px solid #e6eef8; border-radius:8px; padding:10px; width:100%; }
+.modal-model-edit .file-hint { font-size:12px; color:#94a3b8 }
+.modal-model-edit .image-preview { width:140px; height:120px; border-radius:8px; border:1px solid #edf2f7; display:flex;align-items:center;justify-content:center; color:#94a3b8; background-repeat:no-repeat;background-position:center;background-size:contain }
+.modal-model-edit .image-controls .icon-square { width:36px; height:36px; border-radius:8px; border:1px solid #e6eef8; background:#fff; cursor:pointer; font-weight:700 }
+.modal-model-edit .image-controls .icon-square:hover { box-shadow:0 6px 14px rgba(16,24,40,0.06); transform:translateY(-2px) }
+.modal-model-edit .model-edit-actions { padding:12px 0 6px 0 }
+.modal-model-edit .model-edit-actions .btn { border-radius:20px; padding:10px 18px }
+.modal-model-edit .model-edit-actions .btn[style*="color:#ef4444"],
+.modal-model-edit .model-edit-actions .btn.model-btn-remove { color:#ef4444; background:transparent; border:0 }
+.modal-model-edit .model-edit-actions .btn-primary { background: var(--accent); border:0 }
+.modal-model-edit .model-edit-actions .btn-primary:hover { background: var(--accent-2) }
+
+@media (max-width:640px){
+  .modal-model-edit .model-edit-grid{flex-direction:column}
+  .modal-model-edit .model-edit-image{width:100%;display:flex;flex-direction:row;justify-content:center;gap:12px}
+}
+
+/* Add modal styles */
+.modal-card input[type="file"]{font-size:13px}
+.nested-modal .modal-card{max-width:520px}
+.nested-modal .modal-header h3{font-size:16px}
+.nested-modal .modal-body label{font-size:13px}
+.nested-modal .modal-actions .btn{padding:8px 14px}
+
+/* Small preview box common style */
+.image-preview{width:120px;height:90px;border-radius:8px;border:1px solid #edf2f7;display:flex;align-items:center;justify-content:center;color:#94a3b8;background-repeat:no-repeat;background-position:center;background-size:contain}
+
+/* Toast / notification styles (top-right) */
+#toast-container{position:fixed;top:18px;right:18px;z-index:40000;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.toast-item{pointer-events:auto;min-width:200px;max-width:360px;padding:10px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(2,6,23,0.12);color:#0f1724;background:#fff;opacity:0;transform:translateY(-8px) scale(.98);transition:all .28s cubic-bezier(.2,.9,.25,1);font-size:13px;line-height:1.2}
+.toast-item.show{opacity:1;transform:translateY(0) scale(1)}
+.toast-success{background:linear-gradient(90deg,#ecfdf5,#bbf7d0);border:1px solid #86efac;color:#065f46}
+.toast-error{background:linear-gradient(90deg,#fff1f2,#fecaca);border:1px solid #fca5a5;color:#7f1d1d}
+.toast-warning{background:linear-gradient(90deg,#fffbeb,#fde68a);border:1px solid #fcd34d;color:#92400e}
+.toast-info{background:linear-gradient(90deg,#eef2ff,#e0e7ff);border:1px solid #c7d2fe;color:#3730a3}
+
+@media (max-width:640px){
+  #toast-container{left:12px;right:12px;top:12px}
+  .toast-item{max-width:calc(100vw - 36px)}
+}
